@@ -2,8 +2,6 @@
 
 ### Sirui Cui, Tova Ibbotson, Talia Seshaiah
 
-README: initial readme file that explains the purpose of the repository. 
-
 ## About 
 This repository contains the code associated with our final project. 
 
