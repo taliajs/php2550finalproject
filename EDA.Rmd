@@ -130,6 +130,7 @@ isolates %>% filter(!is.na(Host.category) & !Host.category=="Human") %>% ggplot(
        y = "Count") +
   theme_minimal()
 
+
 ```
 
 ```{r collection.date, warning =FALSE, message=FALSE}
@@ -212,7 +213,7 @@ As we move further along in the project, we may choose to focus on a subset of t
 
 \newpage
 # References
-1. The NCBI Pathogen Detection Project [Internet]. Bethesda (MD): National Library of Medicine (US), National Center for Biotechnology Information. 2016 May [cited YYYY MMM DD]. Available from: https://www.ncbi.nlm.nih.gov/pathogens/
+1. The NCBI Pathogen Detection Project [Internet]. Bethesda (MD): National Library of Medicine (US), National Center for Biotechnology Information. 2016 May [cited 2022 10 22]. Available from: https://www.ncbi.nlm.nih.gov/pathogens/
 
 # Appendix: All code for this report
 
