@@ -1,0 +1,221 @@
+---
+title: "Exploratory Analysis"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(table1)
+library(lubridate)
+
+```
+
+```{r load data}
+isolates <- read.csv("isolates.csv")
+
+```
+
+### Data Processing
+Data was downloaded from the NCBI Pathogen Detection Project^1^ Isolates Browser. The following filters were used to select isolates of *Salmonella enterica* found in the United States. Specifically, serovars known to cause human illness, *S*. Enteritidis and *S*. Typhimurium, were chosen.
+
+> Filtered by: taxgroup_name:("Salmonella enterica") AND geo_loc_name:("USA") AND serovar:("Enteritidis" "Typhimurium" "Salmonella enterica subsp. enterica serovar Enteritidis" "Enteriditis" "Enteritidis (Predicted)" "Enteritidis (predicted)" "Enteritidus" "enteritidis" "Salmonella enterica subsp. enterica serovar Typhimurium" "Typhimurium var. 5-" "Typhimurium var. O 5 - (Copenhagen)" "Typhimurium Copenhagen" "Typhimurium var. Copenhagen" "Typhimurium (Predicted)" "potential monophasic variant of Typhimurium" "Typhimurium var. O 5-(Copenhagen)" "Typhimurium var. O:5-" "Typhimurium* (Cerro)")
+
+All available variables of the data were downloaded from the Isolates Browser; however, only select variables will be included in the EDA. The variables that are excluded are the those with many levels that cannot be easily summarized in an EDA; like those used to identify the isolates. Additionally, variables that provide information on the methods of sequencing the isolates are excluded. Although these variables are not interpretable in an EDA, they may be of use in later analyses for imputation and prediction.
+
+```{r data processing}
+# Recode blank spaces as NAs
+isolates <- isolates %>% 
+  mutate_all(~replace(., . == "", NA))
+
+# Recode Serovar
+isolates$Serovar[isolates$Serovar=="Enteriditis"] <- "Enteritidis"
+isolates$Serovar[isolates$Serovar=="enteritidis"] <- "Enteritidis"
+isolates$Serovar[isolates$Serovar=="Enteritidis (predicted)"] <- "Enteritidis"
+isolates$Serovar[isolates$Serovar=="Enteritidis (Predicted)"] <- "Enteritidis"
+isolates$Serovar[isolates$Serovar=="Enteritidus"] <- "Enteritidis"
+isolates$Serovar[isolates$Serovar=="Salmonella enterica subsp. enterica serovar Enteritidis"] <- "Enteritidis"
+
+isolates$Serovar[isolates$Serovar=="potential monophasic variant of Typhimurium"] <- "Typhimurium (Monophasic)"
+isolates$Serovar[isolates$Serovar=="Salmonella enterica subsp. enterica serovar Typhimurium"] <- "Typhimurium"
+isolates$Serovar[isolates$Serovar=="Typhimurium (Predicted)"] <- "Typhimurium"
+isolates$Serovar[isolates$Serovar=="Typhimurium Copenhagen"] <- "Typhimurium (Copenhagen)"
+isolates$Serovar[isolates$Serovar=="Typhimurium var. 5-"] <- "Typhimurium (Copenhagen)"
+isolates$Serovar[isolates$Serovar=="Typhimurium var. Copenhagen"] <- "Typhimurium (Copenhagen)"
+isolates$Serovar[isolates$Serovar=="Typhimurium var. O 5 - (Copenhagen)"] <- "Typhimurium (Copenhagen)"
+isolates$Serovar[isolates$Serovar=="Typhimurium var. O 5-(Copenhagen)"] <- "Typhimurium (Copenhagen)"
+isolates$Serovar[isolates$Serovar=="Typhimurium var. O:5-"] <- "Typhimurium (Copenhagen)"
+isolates$Serovar[isolates$Serovar=="Typhimurium* (Cerro)"] <- "Typhimurium (Cerro)"
+
+```
+
+```{r table one}
+# Create labels for table 1 and table 1
+label(isolates$Isolation.type) <- "Isolation type"
+label(isolates$Min.same) <- "Min SNP distance\nfrom isolate of same type"
+label(isolates$Min.diff) <- "Min SNP distance\nfrom isolate of different type"
+label(isolates$Length) <- "Length of genome sequence"
+label(isolates$Contigs) <- "Number of contigs in\nthe isolate's genome assembly"
+label(isolates$Level) <- "Genome assembly level"
+
+table1(~ Serovar + Isolation.type + Min.same + Min.diff + Length + Contigs + Level, 
+       data = isolates)
+
+```
+
+```{r host}
+# Create host categories
+Human <- "Homo sapiens"
+Environment <- c("Dust","Environment","Environmental","soil","Soil")
+Bird <- c("Bird","chicken","Chicken","Columba livia","Eudocimus albus","Gallus gallus","Gallus gallus domesticus",
+          "Meleagris gallopavo","Parrot","Pelecanus occidentalis","Poultry","Spinus pinus","turkey","Turkey")
+Reptile <- c("Lepidochyelys olivacea","Malaclemys terrapin","Pogona vitticeps","SNAKE","Terrepene carolina")
+Animal <- "animal"
+Food <- "Raw almond"
+Mammal <- c("Alces alces","Alpaca","Bos taurus","bovine","Bovine","Canis sp.","Cat","cattle","cow","Deer","Dog",
+            "Enhydra","Equine","Equus caballus","Equus ferus caballus","Horse","Lama glama","lamb","mouse",
+            "Mus musculus","Neogale vison","opposum","Ovis aries","Pig","porcine","Rabbit","rodent","Sus scrofa",
+            "Sus sp.","swine")
+
+# Make a variable with host categories
+isolates$Host.category <- vector(length = length(isolates$Host))
+
+for (i in 1:length(isolates$Host)) {
+  if (isolates$Host[i]%in%Human) {
+    isolates$Host.category[i] <- "Human"
+    
+  } else if (isolates$Host[i]%in%Environment) {
+    isolates$Host.category[i] <- "Environment"
+    
+  } else if (isolates$Host[i]%in%Bird) {
+    isolates$Host.category[i] <- "Bird"
+      
+  } else if (isolates$Host[i]%in%Reptile) {
+    isolates$Host.category[i] <- "Reptile"
+    
+  } else if (isolates$Host[i]%in%Animal) {
+    isolates$Host.category[i] <- "Animal"
+    
+  } else if (isolates$Host[i]%in%Food) {
+    isolates$Host.category[i] <- "Food"
+    
+  } else if (isolates$Host[i]%in%Mammal) {
+    isolates$Host.category[i] <- "Mammal"
+    
+  } else {
+    isolates$Host.category[i] <- NA
+  }
+}
+
+# Create a plot of host categories
+isolates %>% filter(!is.na(Host.category) & Host.category=="Human") %>% ggplot() + 
+  geom_bar(aes(Serovar, fill = Serovar)) +
+  scale_fill_manual(values = c("#F8766D","#A3A500","#00B0F6")) +
+  labs(title = "Isolates from a human host by serovar",
+       y = "Count") +
+  guides(fill = "none") +
+  theme_minimal()
+
+isolates %>% filter(!is.na(Host.category) & !Host.category=="Human") %>% ggplot() + 
+  geom_bar(aes(Host.category, fill = Serovar)) +
+  scale_fill_manual(values = c("#F8766D","#A3A500","#00BF7D","#00B0F6")) +
+  labs(title = "Isolates from non-human hosts by serovar",
+       x = "Host category",
+       y = "Count") +
+  theme_minimal()
+
+```
+
+```{r collection.date, warning =FALSE, message=FALSE}
+# Look at collection.date
+isolates$Collection.year <- vector(length = length(isolates$Collection.date))
+
+for (i in 1:length(isolates$Collection.date)){
+  isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],1,4)
+
+}
+
+isolates %>% filter(!(str_length(Collection.year))<4) %>% ggplot() +
+  geom_bar(aes(Collection.year, fill = Serovar)) +
+  labs(title = "Year of sample collection by serovar",
+       x = "Year", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, size = 6))
+
+isolates %>% filter(!(str_length(Collection.year))<4) %>% 
+  filter(Collection.year==c(2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,
+                            2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022)) %>%
+  ggplot() +
+  geom_bar(aes(Collection.year, fill = Serovar)) +
+  labs(title = "Year of sample collection by serovar since 2000",
+       x = "Year", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, size = 6))
+
+```
+
+```{r other, results = 'hide'}
+# Look at lat long
+sum(!is.na(isolates$Lat.Lon))
+n_distinct((isolates$Lat.Lon))
+
+# Look at Outbreak
+table(isolates$Outbreak)
+sum(!is.na(isolates$Outbreak))
+
+# Look at host disease
+table(isolates$Host.disease)
+sum(!is.na(isolates$Host.disease))
+
+# Isolation source
+n_distinct(isolates$Isolation.source)
+
+```
+
+```{r map, results = 'hide'}
+table(isolates$Location)
+
+isolates$Location.state <- vector(length=length(isolates$Location))
+
+for (i in 1:length(isolates$Location)) {
+  if (str_detect(isolates$Location[i],":")==TRUE) {
+    isolates$Location.state[i] <- str_sub(isolates$Location[i],5)
+  } else {
+    isolates$Location.state[i] <- NA
+  }
+}
+
+isolates$Location.state <- ifelse(str_detect(isolates$Location.state, "New York"))
+
+
+
+str_detect(isolates$Location[1],":")
+
+str_sub(isolates$Location,5)
+
+
+
+
+str_split(isolates$Location, ":")
+
+```
+
+### Further Analysis and Processing
+As we move further along in the project, we may choose to focus on a subset of the isolates based on their isolation source. Although this information is accessible, the variable contains 821 unique categories, so analysis of source type will require grouping these categories.
+
+
+\newpage
+# References
+1. The NCBI Pathogen Detection Project [Internet]. Bethesda (MD): National Library of Medicine (US), National Center for Biotechnology Information. 2016 May [cited YYYY MMM DD]. Available from: https://www.ncbi.nlm.nih.gov/pathogens/
+
+# Appendix: All code for this report
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
