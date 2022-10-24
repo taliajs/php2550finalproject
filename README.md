@@ -9,4 +9,5 @@ This repository contains the code associated with our final project, which is fo
 
 ## Files
 - `isolates.csv`: Dataset used
-- `missingdata.R`: Missing data analysis. This file contains the code used for our analysis of missing data
+- `missingdata.R`: Missing data analysis. This file contains the code used for our analysis of missing data.
+- `EDA.Rmd`: This file contains the code for the exploratory analysis.
