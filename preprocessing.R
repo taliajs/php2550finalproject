@@ -1,5 +1,7 @@
 
 # Data Pre-Processing
+  # recoding variables (NA's and Serovar variable
+  # creating categories/groups for variables
   # standardizing location
   # creating regions
   # categories/groups for isolate source (STILL TO BE DONE!!)
@@ -14,6 +16,75 @@ isolates <- read.csv("isolates.csv")
 # rename first column 
 colnames(isolates)[colnames(isolates) == "X.Organism.group"] <- "Organism.group"
 
+## Recoding Variables ##
+
+# Recode blank spaces as NA's
+isolates2 <- isolates %>% 
+  mutate_all(~replace(., . == "", NA))
+
+# Recode Serovar
+isolates2$Serovar[isolates2$Serovar=="Enteriditis"] <- "Enteritidis"
+isolates2$Serovar[isolates2$Serovar=="enteritidis"] <- "Enteritidis"
+isolates2$Serovar[isolates2$Serovar=="Enteritidis (predicted)"] <- "Enteritidis"
+isolates2$Serovar[isolates2$Serovar=="Enteritidis (Predicted)"] <- "Enteritidis"
+isolates2$Serovar[isolates2$Serovar=="Enteritidus"] <- "Enteritidis"
+isolates2$Serovar[isolates2$Serovar=="Salmonella enterica subsp. enterica serovar Enteritidis"] <- "Enteritidis"
+isolates2$Serovar[isolates2$Serovar=="potential monophasic variant of Typhimurium"] <- "Typhimurium (Monophasic)"
+isolates2$Serovar[isolates2$Serovar=="Salmonella enterica subsp. enterica serovar Typhimurium"] <- "Typhimurium"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium (Predicted)"] <- "Typhimurium"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium Copenhagen"] <- "Typhimurium (Copenhagen)"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium var. 5-"] <- "Typhimurium (Copenhagen)"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium var. Copenhagen"] <- "Typhimurium (Copenhagen)"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium var. O 5 - (Copenhagen)"] <- "Typhimurium (Copenhagen)"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium var. O 5-(Copenhagen)"] <- "Typhimurium (Copenhagen)"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium var. O:5-"] <- "Typhimurium (Copenhagen)"
+isolates2$Serovar[isolates2$Serovar=="Typhimurium* (Cerro)"] <- "Typhimurium (Cerro)"
+
+
+## Creating categories for host ##
+
+# Create host categories
+Human <- "Homo sapiens"
+Environment <- c("Dust","Environment","Environmental","soil","Soil")
+Bird <- c("Bird","chicken","Chicken","Columba livia","Eudocimus albus","Gallus gallus","Gallus gallus domesticus",
+          "Meleagris gallopavo","Parrot","Pelecanus occidentalis","Poultry","Spinus pinus","turkey","Turkey")
+Reptile <- c("Lepidochyelys olivacea","Malaclemys terrapin","Pogona vitticeps","SNAKE","Terrepene carolina")
+Animal <- "animal"
+Food <- "Raw almond"
+Mammal <- c("Alces alces","Alpaca","Bos taurus","bovine","Bovine","Canis sp.","Cat","cattle","cow","Deer","Dog",
+            "Enhydra","Equine","Equus caballus","Equus ferus caballus","Horse","Lama glama","lamb","mouse",
+            "Mus musculus","Neogale vison","opposum","Ovis aries","Pig","porcine","Rabbit","rodent","Sus scrofa",
+            "Sus sp.","swine")
+
+isolates2$Host.category <- vector(length = length(isolates2$Host))
+
+for (i in 1:length(isolates2$Host)) {
+  if (isolates2$Host[i]%in%Human) {
+    isolates2$Host.category[i] <- "Human"
+    
+  } else if (isolates2$Host[i]%in%Environment) {
+    isolates2$Host.category[i] <- "Environment"
+    
+  } else if (isolates2$Host[i]%in%Bird) {
+    isolates2$Host.category[i] <- "Bird"
+    
+  } else if (isolates2$Host[i]%in%Reptile) {
+    isolates2$Host.category[i] <- "Reptile"
+    
+  } else if (isolates2$Host[i]%in%Animal) {
+    isolates2$Host.category[i] <- "Animal"
+    
+  } else if (isolates2$Host[i]%in%Food) {
+    isolates2$Host.category[i] <- "Food"
+    
+  } else if (isolates2$Host[i]%in%Mammal) {
+    isolates2$Host.category[i] <- "Mammal"
+    
+  } else {
+    isolates2$Host.category[i] <- NA
+  }
+}
+
 
 ############################
 ## STANDARDIZING LOCATION ##
@@ -25,9 +96,6 @@ standardize_location <- function(df) {
   # standardizes location variable
   #'@param data frame
   #'@return standardized location (state abbreviation)
-
-  # create a duplicate of the original dataframe
-  isolates2 <- df
   
   # create standardized location variable (state abbreviation)
   isolates2$state <- vector(length = length(isolates2$Location)) # this will be the standardized location, aka 
@@ -37,6 +105,7 @@ standardize_location <- function(df) {
   
   for (i in 1:nrow(isolates2)) {
     
+    # getting the location values
     location <- isolates2$Location[i]
     
     # extract everything after the colon (USA:[.....])
@@ -103,11 +172,12 @@ standardize_location <- function(df) {
       isolates2$state[i] <- "Other"
     }
   }
+  
   return(isolates2)
 }
+standardize_location(isolates2)
 
-df <- isolates
-standardize_location(df)
+isolates2 <- standardize_location(isolates2)
 
 # if want to select the original location columns, lat long, and the new columns from function: 
   #isolates2 <- isolates2 %>% select(7,32,51,52)
@@ -203,9 +273,21 @@ regions <- function(df) {
   }
   return(df)
 }
-
 df <- isolates2 
-regions(df)
+
+isolates2 <- regions(isolates2)
+
+
+
+####################
+## ISOLATE SOURCE ##
+####################
+
+# Creating groups 
+
+
+
+
 
 # export isolates2 csv
 write.csv(isolates2, file = "isolates2.csv")
