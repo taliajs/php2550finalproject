@@ -1,0 +1,137 @@
+---
+title: "Model"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(mice)
+library(modelr)
+```
+
+```{r load data}
+isolates <- read.csv("~/Downloads/php2550finalproject-main 2/isolates2.csv")
+
+isolates$Collection.date[is.na(isolates$Collection.date)] <- ""
+#process the year and month
+for (i in 1:length(isolates$Collection.date)){
+  if(str_detect(isolates$Collection.date[i],"/")==TRUE){
+    if(nchar(isolates$Collection.date[i])==8){
+      isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],5,8)
+      isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],1,1)
+    }else if(nchar(isolates$Collection.date[i])==9){
+      isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],6,9)
+      isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],1,2)
+      if(str_detect(isolates$Collection.month[i],"/")==TRUE){
+        isolates$Collection.month[i] <- str_extract(isolates$Collection.month[i],"(\\d)+")
+      }
+    }else if(nchar(isolates$Collection.date[i])==10){
+      isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],7,10)
+      isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],1,2)
+    }
+  }else if(str_detect(isolates$Collection.date[i],"/")==FALSE){
+    isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],1,4)
+    isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],6,7)
+  }
+}
+isolates$Collection.month <- as.numeric(isolates$Collection.month)
+isolates$Collection.year <- as.numeric(isolates$Collection.year)
+
+```
+
+
+```{r,echo=FALSE}
+#45.31% missing data of regions
+#sum(is.na(isolates$region))/nrow(isolates)
+#2.24% missing data of collection year
+#sum(is.na(isolates$Collection.year))/nrow(isolates)
+#54.1% missing data of collection month
+#sum(is.na(isolates$Collection.month))/nrow(isolates)
+
+month_df <- isolates %>% select(c("Serovar","Host.category","region","Collection.year","Collection.month"))%>% group_by(Serovar,Host.category,Collection.year)
+#using predictive mean matching for multiple implications
+imputed_Data_month <- mice(month_df, m=5, maxit = 50, method = 'pmm', seed = 500)
+#Add the data back to original data using one of the iterations
+completeData_month <- complete(imputed_Data_month, 3)
+
+#check if full replacement of missing data in Collection.month
+#sum(is.na(completeData_month$Collection.month))/nrow(isolates)
+```
+
+```{r}
+#compute the frequency of each Serovar in each region in each year
+isolates$complete.month <- completeData_month$Collection.month
+isolates$complete.year <- completeData_month$Collection.year
+isolates_clean <- isolates %>%
+  group_by(Serovar, region, complete.year,Isolation.type,complete.month)%>%
+  mutate(cat_count=n()) %>%
+  ungroup() %>%
+  group_by(region, complete.year,Isolation.type,complete.month) %>%
+  mutate(serovar_count=n(),freq=cat_count/serovar_count)
+isolates_clean$id <- c(1:nrow(isolates_clean))
+```
+
+```{r,parameter tuning(months into season)}
+#fit the model selecting variables in overall
+model1 <-glm(freq~region+complete.year+Isolation.type+complete.month,family=binomial(),isolates_clean)
+summary(model1)
+
+#month not significance and so thinking about transformation on the variable
+#group into seasons instead of by months
+for (i in 1:nrow(isolates_clean)){
+  #getting the month values
+  if (isolates_clean$complete.month[i] %in% c(1,2,3)){
+    #creating a new variable indicating the season
+    isolates_clean$season[i] <- 1
+  }else if (isolates_clean$complete.month[i] %in% c(4,5,6)){
+    isolates_clean$season[i] <- 2
+  }else if(isolates_clean$complete.month[i] %in% c(7,8,9)){
+    isolates_clean$season[i] <- 3
+  }else if (isolates_clean$complete.month[i] %in% c(10,11,12)){
+    isolates_clean$season[i] <- 4
+  }
+}
+
+#fit the model with new variable season on overall dataset
+model2 <-glm(freq~region+complete.year+Isolation.type+season,family=binomial(),isolates_clean)
+summary(model2)
+
+#p-value of season gets smaller and closer to 0.05
+model3 <-glm(freq~region+complete.year*season+Isolation.type,family=binomial(),isolates_clean)
+summary(model3)
+#both season and the interaction term of season and year shows significance
+```
+
+```{r}
+#cross-validation: split into train-80% and test-20%
+# dividing data into five sets, each with a training set and a test set.
+train_ind <- createDataPartition(isolates_clean$id, p=0.8, list = FALSE, times = 5)
+train_df1 <- isolates_clean[train[,1],]
+train_df2 <- isolates_clean[train[,2],]
+train_df3 <- isolates_clean[train[,3],]
+train_df4 <- isolates_clean[train[,4],]
+train_df5 <- isolates_clean[train[,5],]
+
+test_df1 <- isolates_clean[-train[,1],]
+test_df2 <- isolates_clean[-train[,2],]
+test_df3 <- isolates_clean[-train[,3],]
+test_df4 <- isolates_clean[-train[,4],]
+test_df5 <- isolates_clean[-train[,5],]
+```
+
+potential problems: missing data of regions 45.3%
+
+```{r}
+#prediction for specific groups
+#newdata <- with(voting, data.frame(age = c(20, 60), edu=mean(edu, na.rm=TRUE), income=mean(income, na.rm=TRUE)))
+```
+
+
+
+
