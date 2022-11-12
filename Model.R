@@ -117,6 +117,16 @@ for (i in 1:nrow(isolates_clean)){
   }
 }
 
+# compute the frequency but with each season instead of each month
+isolates_clean <- isolates_clean %>%
+  select(-c(freq)) %>%
+  group_by(Serovar, region, complete.year,Isolation.type,season)%>%
+  mutate(cat_count=n()) %>%
+  ungroup() %>%
+  group_by(region, complete.year,Isolation.type,season) %>%
+  mutate(serovar_count=n(),freq=cat_count/serovar_count)
+
+
 # fit the model with new variable season on overall dataset
 model2 <-glm(freq~region+complete.year+Isolation.type+season,family=binomial(),isolates_clean)
 summary(model2)
