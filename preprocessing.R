@@ -191,7 +191,7 @@ isolates2 <- standardize_location(isolates2)
 ## CREATING REGIONS ##
 ######################
 
-# Create regions nased on the BIFSco Regions (Source #4)
+# Create regions based on the BIFSco Regions (Source #4)
   # 48 states in total
   # Note: missing Alaska (AK) and Hawaii (HI)
     # ** WHAT REGIONS WILL THESE STATES BE ADDED TO?? --> Hawaii will be added to the West (Region 2), and Alaska will be added to Northwest (Region 1). 
@@ -206,13 +206,13 @@ region3 <- c("AZ", "NM", "TX")
 # Region 4 (4 states)
 region4 <- c("MT", "CO", "WY", "UT")
 # Region 5: Upper Midwest (5 states)
-region5 <- c("NE", "ND", "SD", "MN", "WS")
+region5 <- c("NE", "ND", "SD", "MN", "WI")
 # Region 6: Central (3 states)
 region6 <- c("IA", "KS", "MO")
 # Region 7: Southeast (10 states)
-region7 <- c("OK", "AR", "LA,", "NC", "SC", "FL", "AL", "MS", "GA", "TN")
+region7 <- c("OK", "AR", "LA", "NC", "SC", "FL", "AL", "MS", "GA", "TN")
 # Region 8: Northeast (18 states)
-region8 <- c("IL", "IN", "KT", "MS", "ME", "MD", "MI", "NJ", "NY", "NH", "CN", "RI", "OH", "WV", "VA", "VT", "PA", "DE")
+region8 <- c("IL", "IN", "KY", "MA", "ME", "MD", "MI", "NJ", "NY", "NH", "CT", "RI", "OH", "WV", "VA", "VT", "PA", "DE")
 
 
 regions <- function(df) {
