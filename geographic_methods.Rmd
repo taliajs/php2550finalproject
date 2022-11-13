@@ -1,0 +1,56 @@
+---
+title: "Exploration of Methods for Geographic Visualization"
+author: "Tova Ibbotson"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Static Visualization
+```{r load packages}
+library(ggplot2)
+library(dplyr)
+require(maps)
+require(viridis)
+
+theme_set(theme_void())
+
+```
+
+```{r load data}
+
+
+
+
+```
+
+
+
+```{r map1}
+states_map <- map_data("state")
+
+ggplot(states_map, aes(long, lat, group = group)) +
+  geom_polygon()
+
+
+```
+
+
+## Interactive Visualization
+
+
+
+
+
+
+\newpage
+# References
+
+
+# Appendix: All code for this report
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
