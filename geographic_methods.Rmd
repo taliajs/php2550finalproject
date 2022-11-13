@@ -20,19 +20,42 @@ theme_set(theme_void())
 ```
 
 ```{r load data}
+isolates <- read.csv("isolates2.csv")
 
+# Restrict to isolates that have a state identified
+isolate_states <- isolates %>% 
+  filter(!state == "Not Specified") %>% 
+  rename(cdc_region = region) %>% 
+  rename(region = state)
 
-
+isolate_states$region <- tolower(state.name[match(isolate_states$region,state.abb)])
 
 ```
 
+```{r missing}
+sum(is.na(isolates$Lat.Lon))/nrow(isolates)
+sum(!isolates$state=="Not Specified")/nrow(isolates)
+
+```
+
+Over 98% of the data in the latitude-longitude variable are missing, so geographic visualization of the data must be done at the state-level. We have state-level location information for roughly 60% of the isolates, so geographic analysis will be restricted to the 13072 observations.
 
 
-```{r map1}
+```{r map region}
 states_map <- map_data("state")
 
-ggplot(states_map, aes(long, lat, group = group)) +
-  geom_polygon()
+isolate_states %>% 
+  group_by(region) %>% 
+  summarize(n_isolates = n()) %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D")
+
+a <- isolate_states %>% 
+  group_by(region) %>% 
+  summarize(n_isolates = n()) %>%
+  left_join(states_map, by = "region") 
 
 
 ```
