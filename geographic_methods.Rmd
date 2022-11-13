@@ -66,18 +66,18 @@ a <- isolate_states %>%
 ```{r map cdc region}
 
 isolate_states %>% 
-  group_by(region) %>% 
+  group_by(cdc_region) %>% 
   summarize(n_isolates = n()) %>%
   left_join(states_map, by = "region") %>%
   ggplot(aes(long, lat, group = group)) +
   geom_polygon(aes(fill = n_isolates), color = "white") +
   scale_fill_viridis(option = "D", name = "Number of Isolates") +
-  labs(title = "Figure 1", subtitle = "Number of Isolates by State")
+  labs(title = "Figure 2", subtitle = "Number of Isolates by Microbiological Monitoring Region")
 
 # Create table of count of isolates by state
-a <- isolate_states %>% 
-  group_by(region) %>% 
-  summarize(n_isolates = n())
+b <- isolate_states %>% 
+  group_by(cdc_region) %>% 
+  count(cdc_region)
 
 
 ```
