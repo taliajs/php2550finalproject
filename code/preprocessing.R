@@ -334,16 +334,7 @@ isolates2$Collection.month <- as.numeric(isolates2$Collection.month)
 isolates2$Collection.year <- as.numeric(isolates2$Collection.year)
 
 
-#############
-## SEASONS ##
-#############
 
-# grouping months into seasons 
-
-
-## checking the processing for year, month and season
-
-  #isolates3 <- isolates2 %>% select(31,55,56)
   
 
 
