@@ -7,57 +7,11 @@ library(ggplot2)
 library(lubridate)
 library(mice)
 library(modelr)
+library(lmtest)
 
 # load in dataset
 isolates <- read.csv("isolates2.csv")
 
-########################### data processing ###########################
-
-# replacing the NA
-isolates$Collection.date[is.na(isolates$Collection.date)] <- ""
-
-# process the year and month
-for (i in 1:length(isolates$Collection.date)){
-  # some string has the date in the version of "%mm/%dd/%YYYY", filtering those strings out
-  if(str_detect(isolates$Collection.date[i],"/")==TRUE){
-    # character length of the string for "%m/%d/%YYYY"
-    if(nchar(isolates$Collection.date[i])==8){
-      # extract the year at the position 5 to 8
-      isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],5,8)
-      # extract the month at the position 1
-      isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],1,1)
-    }
-    # character length of the string for "%mm/%d/%YYYY" or "%m/%dd/%YYYY"
-    else if(nchar(isolates$Collection.date[i])==9){
-      # extract the year at the position 6 to 9
-      isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],6,9)
-      ≈
-      isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],1,2)
-      # when the string is in the format of "%m/%dd/%YYYY", it will include "/" in the month, so we need further extraction
-      if(str_detect(isolates$Collection.month[i],"/")==TRUE){
-        # removing the "/" in the month from the string "%m/%dd/%YYYY"
-        isolates$Collection.month[i] <- str_extract(isolates$Collection.month[i],"(\\d)+")
-      }
-    }
-    # character length of the string for "%mm/%dd/%YYYY"
-    else if(nchar(isolates$Collection.date[i])==10){
-      # extract the year at the position 7 to 10
-      isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],7,10)
-      # extract the year at the position 1 to 2
-      isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],1,2)
-    }
-  }
-  # other dates are either missing or in the format as "%Y-%m-%d"
-  else if(str_detect(isolates$Collection.date[i],"/")==FALSE){
-    # extract the year at position 1 to 4
-    isolates$Collection.year[i] <- str_sub(isolates$Collection.date[i],1,4)
-    # extract the month at position 6 to 7
-    isolates$Collection.month[i] <- str_sub(isolates$Collection.date[i],6,7)
-  }
-}
-# convert the class of year and month to numeric from characters
-isolates$Collection.month <- as.numeric(isolates$Collection.month)
-isolates$Collection.year <- as.numeric(isolates$Collection.year)
 
 ########################### imputations before fitting the model ###########################
 # 45.31% missing data of regions
@@ -98,20 +52,20 @@ summary(model1)
 # month not significance and so thinking about transformation on the variable
 # group into seasons instead of by months
 for (i in 1:nrow(isolates_clean)){
-  # if the month is Jan, Feb or March
-  if (isolates_clean$complete.month[i] %in% c(1,2,3)){
+  # if the month is Mar, Apr, May
+  if (isolates_clean$complete.month[i] %in% c(3,4,5)){
     # then new variable season has the value 1
     isolates_clean$season[i] <- 1
-  }# if the month is April, May, Jun
-  else if (isolates_clean$complete.month[i] %in% c(4,5,6)){
+  }# if the month is Jun, Jul, Aug
+  else if (isolates_clean$complete.month[i] %in% c(6,7,8)){
     # then new variable season has the value 2
     isolates_clean$season[i] <- 2
-  }# if the month is Jul, Aug, Sep
-  else if(isolates_clean$complete.month[i] %in% c(7,8,9)){
+  }# if the month is Sep,Oct,Nov
+  else if(isolates_clean$complete.month[i] %in% c(9,10,11)){
     # then new variable season has the value 3
     isolates_clean$season[i] <- 3
-  }# if the month is Oct, Nov, Dec
-  else if (isolates_clean$complete.month[i] %in% c(10,11,12)){
+  }# if the month is Dec, Jan, Feb
+  else if (isolates_clean$complete.month[i] %in% c(12,1,2)){
     # then new variable season has the value 4
     isolates_clean$season[i] <- 4
   }
@@ -127,14 +81,16 @@ isolates_clean <- isolates_clean %>%
   mutate(serovar_count=n(),freq=cat_count/serovar_count)
 
 
-# fit the model with new variable season on overall dataset
+# fit the model with new variable season on overall dataset: season variable shows significant as p-value <0.05
 model2 <-lm(freq~region+complete.year+Isolation.type+season,isolates_clean)
 summary(model2)
 
-# p-value of season gets smaller and closer to 0.05
-model3 <-lm(freq~region+complete.year*season+Isolation.type,isolates_clean)
+# p-value of interaction term of year and season shows significance
+model3 <-lm(freq~region+log(complete.year*season)+Isolation.type,isolates_clean)
 summary(model3)
-# both season and the interaction term of season and year shows significance
+
+# comparing if there is the significant difference between model2 and model3
+lrest(model2,model3)
 
 ########################### data validation ###########################
 # cross-validation: split into train-80% and test-20%
