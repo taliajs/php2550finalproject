@@ -183,9 +183,6 @@ standardize_location <- function(df) {
 standardize_location(isolates2)
 isolates2 <- standardize_location(isolates2)
 
-# if want to select the original location columns, lat long, and the new columns from function: 
-  #isolates2 <- isolates2 %>% select(7,32,51,52)
-
 
 ######################
 ## CREATING REGIONS ##
@@ -334,9 +331,36 @@ isolates2$Collection.month <- as.numeric(isolates2$Collection.month)
 isolates2$Collection.year <- as.numeric(isolates2$Collection.year)
 
 
+#############
+## SEASONS ##
+#############
 
-  
+# grouping months into seasons 
 
+for (i in 1:nrow(isolates2)){
+  # if the month is Mar, Apr, May --> spring
+  if (isolates2$Collection.month[i] %in% c(3,4,5)){
+    # then new variable season has the value 1
+    isolates2$season[i] <- 1
+  }# if the month is Jun, Jul, Aug --> summer
+  else if (isolates2$Collection.month[i] %in% c(6,7,8)){
+    # then new variable season has the value 2
+    isolates2$season[i] <- 2
+  }# if the month is Sep,Oct,Nov --> fall
+  else if(isolates2$Collection.month[i] %in% c(9,10,11)){
+    # then new variable season has the value 3
+    isolates2$season[i] <- 3
+  }# if the month is Dec, Jan, Feb --> winter
+  else if (isolates2$Collection.month[i] %in% c(12,1,2)){
+    # then new variable season has the value 4
+    isolates2$season[i] <- 4
+  } else { #if month not specified, NA 
+    isolates2$season[i] <- NA
+  }
+}
+
+# export isolates2 csv
+write.csv(isolates2, file = "isolates2.csv")
 
 ####################
 ## ISOLATE SOURCE ##
@@ -347,8 +371,6 @@ isolates2$Collection.year <- as.numeric(isolates2$Collection.year)
 
 
 
-# export isolates2 csv
-write.csv(isolates2, file = "isolates2.csv")
 
 
 # SOURCES
