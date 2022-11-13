@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Static Visualization
 ```{r load packages}
+library(knitr)
 library(ggplot2)
 library(dplyr)
 require(maps)
@@ -19,14 +20,16 @@ theme_set(theme_void())
 
 ```
 
-```{r load data}
+```{r load data, warning=FALSE}
 isolates <- read.csv("isolates2.csv")
 
 # Restrict to isolates that have a state identified
 isolate_states <- isolates %>% 
   filter(!state == "Not Specified") %>% 
   rename(cdc_region = region) %>% 
-  rename(region = state)
+  rename(region = state) %>%
+  filter(!(region == "Other"|region == "PR")) %>%
+  filter(Collection.year==c(2015:2022))
 
 isolate_states$region <- tolower(state.name[match(isolate_states$region,state.abb)])
 
@@ -38,10 +41,10 @@ sum(!isolates$state=="Not Specified")/nrow(isolates)
 
 ```
 
-Over 98% of the data in the latitude-longitude variable are missing, so geographic visualization of the data must be done at the state-level. We have state-level location information for roughly 60% of the isolates, so geographic analysis will be restricted to the 13072 observations.
+Over 98% of the data in the latitude-longitude variable are missing, so geographic visualization of the data must be done at the state-level. We have state-level location information for roughly 60% of the isolates, so geographic analysis will be restricted to the 1060 observations collected between 2015 and 2022 with state-level location data. Figure 1 shows the number of isolates found in each state over the time period.
 
 
-```{r map region}
+```{r map state}
 states_map <- map_data("state")
 
 isolate_states %>% 
@@ -50,15 +53,36 @@ isolate_states %>%
   left_join(states_map, by = "region") %>%
   ggplot(aes(long, lat, group = group)) +
   geom_polygon(aes(fill = n_isolates), color = "white") +
-  scale_fill_viridis(option = "D")
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  labs(title = "Figure 1", subtitle = "Number of Isolates by State")
 
+# Create table of count of isolates by state
 a <- isolate_states %>% 
   group_by(region) %>% 
+  summarize(n_isolates = n())
+
+```
+
+```{r map cdc region}
+
+isolate_states %>% 
+  group_by(region) %>% 
   summarize(n_isolates = n()) %>%
-  left_join(states_map, by = "region") 
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  labs(title = "Figure 1", subtitle = "Number of Isolates by State")
+
+# Create table of count of isolates by state
+a <- isolate_states %>% 
+  group_by(region) %>% 
+  summarize(n_isolates = n())
 
 
 ```
+
+
 
 
 next, facet wrap by a variable with <5 levels
