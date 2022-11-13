@@ -9,8 +9,11 @@ This repository contains the code associated with our final project, which is fo
 
 ## Files
 
-- `data`: This folder contains the data used. The original data (from the NCBI Isolates Browser) can be found in the folder titled "original_data". The data that was used for our analysis is `isolates2.csv`.
+- `data`: This folder contains the data used. The original data (from the NCBI Isolates Browser) can be found in the folder titled "original_data". The data that was used for our analysis is `isolates2.csv` (this is our data after pre-processing). 
 
 - `code`: This folder contains the code from the project. 
-  - `missingdata.R`: Missing data analysis. This file contains the code used for our analysis of missing data.
+  - `missingdata.R`: Missing data analysis. This file contains the code used for our initial exploratory analysis of missing data.
   - `EDA.Rmd`: This file contains the code for the exploratory analysis.
+  - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing
+  - `Model.R`: Initial model building for a prediction model that predicts the probability of a specific serovar for Salmonella. 
+  - `geographic_methods.Rmd`: Exploring methods for geographic visualizations.
