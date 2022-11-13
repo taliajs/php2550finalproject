@@ -92,7 +92,7 @@ isolates_clean <- isolates %>%
 isolates_clean$id <- c(1:nrow(isolates_clean))
 
 # fit the model selecting variables in overall
-model1 <-glm(freq~region+complete.year+Isolation.type+complete.month,family=binomial(),isolates_clean)
+model1 <-lm(freq~region+complete.year+Isolation.type+complete.month,isolates_clean)
 summary(model1)
 
 # month not significance and so thinking about transformation on the variable
@@ -128,11 +128,11 @@ isolates_clean <- isolates_clean %>%
 
 
 # fit the model with new variable season on overall dataset
-model2 <-glm(freq~region+complete.year+Isolation.type+season,family=binomial(),isolates_clean)
+model2 <-lm(freq~region+complete.year+Isolation.type+season,isolates_clean)
 summary(model2)
 
 # p-value of season gets smaller and closer to 0.05
-model3 <-glm(freq~region+complete.year*season+Isolation.type,family=binomial(),isolates_clean)
+model3 <-lm(freq~region+complete.year*season+Isolation.type,isolates_clean)
 summary(model3)
 # both season and the interaction term of season and year shows significance
 
@@ -152,8 +152,9 @@ test_df3 <- isolates_clean[-train[,3],]
 test_df4 <- isolates_clean[-train[,4],]
 test_df5 <- isolates_clean[-train[,5],]
 
-# prediction for specific groups
-# newdata <- with(model3, data.frame(region = c(7), Season=c(1,2,3,4))
+#prediction for specific groups
+newdata <- with(model3, data.frame(region = c(7), Serovar=c("Enteritidis"), complete.year=c(2025),season=c(1,2,3,4),Isolation.type=c("environmental/other")))
+predict(model3, newdata)
 
 
 
