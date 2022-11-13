@@ -61,7 +61,11 @@ a <- isolate_states %>%
 ```
 
 
+next, facet wrap by a variable with <5 levels
+
 ## Interactive Visualization
+
+shiny with above facet wrap as filter, if time allows try to add hover summary box
 
 
 
