@@ -35,7 +35,7 @@ isolate_states$region <- tolower(state.name[match(isolate_states$region,state.ab
 
 ```
 
-```{r missing}
+```{r missing, results='hide'}
 sum(is.na(isolates$Lat.Lon))/nrow(isolates)
 sum(!isolates$state=="Not Specified")/nrow(isolates)
 
@@ -47,7 +47,8 @@ Over 98% of the data in the latitude-longitude variable are missing, so geograph
 ```{r map state}
 states_map <- map_data("state")
 
-isolate_states %>% 
+print_map_states <- 
+  isolate_states %>% 
   group_by(region) %>% 
   summarize(n_isolates = n()) %>%
   left_join(states_map, by = "region") %>%
@@ -55,6 +56,8 @@ isolate_states %>%
   geom_polygon(aes(fill = n_isolates), color = "white") +
   scale_fill_viridis(option = "D", name = "Number of Isolates") +
   labs(title = "Figure 1", subtitle = "Number of Isolates by State")
+
+print_map_states
 
 # Create table of count of isolates by state
 a <- isolate_states %>% 
@@ -64,28 +67,27 @@ a <- isolate_states %>%
 ```
 
 ```{r map cdc region}
-
-isolate_states %>% 
+# Create table of count of isolates by state
+b <- isolate_states %>% 
   group_by(cdc_region) %>% 
-  summarize(n_isolates = n()) %>%
+  summarize(n_isolates = n())
+
+print_map_cdc <- 
+  left_join(b, isolate_states, by = "cdc_region") %>%
   left_join(states_map, by = "region") %>%
   ggplot(aes(long, lat, group = group)) +
   geom_polygon(aes(fill = n_isolates), color = "white") +
   scale_fill_viridis(option = "D", name = "Number of Isolates") +
   labs(title = "Figure 2", subtitle = "Number of Isolates by Microbiological Monitoring Region")
 
-# Create table of count of isolates by state
-b <- isolate_states %>% 
-  group_by(cdc_region) %>% 
-  count(cdc_region)
-
+print_map_cdc
 
 ```
 
+-create a map of BIFSCo regions, see if we can add borders around groups of states
 
 
-
-next, facet wrap by a variable with <5 levels
+-next, facet wrap by a variable with <5 levels
 
 ## Interactive Visualization
 
