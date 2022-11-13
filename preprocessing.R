@@ -1,15 +1,18 @@
 
 # Data Pre-Processing
-  # recoding variables (NA's and Serovar variable
-  # creating categories/groups for variables
+  # recoding variables (NA's and Serovar variable)
+  # creating host categories
   # standardizing location
   # creating regions
-  # categories/groups for isolate source (STILL TO BE DONE!!)
+  # processing year and month 
+  # seasons
+  # categories/groups for isolate source (TBD)
 
 # Libraries
 library(tidyverse)
 library(dplyr)
 library(readr)
+library(lubridate)
 
 # read in isolates dataset
 isolates <- read.csv("isolates.csv")
@@ -84,6 +87,8 @@ for (i in 1:length(isolates2$Host)) {
     isolates2$Host.category[i] <- NA
   }
 }
+
+
 
 
 ############################
@@ -176,7 +181,6 @@ standardize_location <- function(df) {
   return(isolates2)
 }
 standardize_location(isolates2)
-
 isolates2 <- standardize_location(isolates2)
 
 # if want to select the original location columns, lat long, and the new columns from function: 
@@ -274,9 +278,73 @@ regions <- function(df) {
   return(df)
 }
 df <- isolates2 
-
 isolates2 <- regions(isolates2)
 
+
+####################
+## YEAR AND MONTH ##
+####################
+
+# Extracting the year and month from `collection.date` variable
+
+# replacing the NA
+isolates2$Collection.date[is.na(isolates2$Collection.date)] <- ""
+
+# process the year and month
+for (i in 1:length(isolates2$Collection.date)){
+  # some string has the date in the version of "%mm/%dd/%YYYY", filtering those strings out
+  if(str_detect(isolates2$Collection.date[i],"/")==TRUE){
+    # character length of the string for "%m/%d/%YYYY"
+    if(nchar(isolates2$Collection.date[i])==8){
+      # extract the year at the position 5 to 8
+      isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],5,8)
+      # extract the month at the position 1
+      isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],1,1)
+    }
+    # character length of the string for "%mm/%d/%YYYY" or "%m/%dd/%YYYY"
+    else if(nchar(isolates2$Collection.date[i])==9){
+      # extract the year at the position 6 to 9
+      isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],6,9)
+      
+      isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],1,2)
+      # when the string is in the format of "%m/%dd/%YYYY", it will include "/" in the month, so we need further extraction
+      if(str_detect(isolates2$Collection.month[i],"/")==TRUE){
+        # removing the "/" in the month from the string "%m/%dd/%YYYY"
+        isolates2$Collection.month[i] <- str_extract(isolates2$Collection.month[i],"(\\d)+")
+      }
+    }
+    # character length of the string for "%mm/%dd/%YYYY"
+    else if(nchar(isolates2$Collection.date[i])==10){
+      # extract the year at the position 7 to 10
+      isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],7,10)
+      # extract the year at the position 1 to 2
+      isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],1,2)
+    }
+  }
+  # other dates are either missing or in the format as "%Y-%m-%d"
+  else if(str_detect(isolates2$Collection.date[i],"/")==FALSE){
+    # extract the year at position 1 to 4
+    isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],1,4)
+    # extract the month at position 6 to 7
+    isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],6,7)
+  }
+}
+# convert the class of year and month to numeric from characters
+isolates2$Collection.month <- as.numeric(isolates2$Collection.month)
+isolates2$Collection.year <- as.numeric(isolates2$Collection.year)
+
+
+#############
+## SEASONS ##
+#############
+
+# grouping months into seasons 
+
+
+## checking the processing for year, month and season
+
+  #isolates3 <- isolates2 %>% select(31,55,56)
+  
 
 
 ####################
@@ -284,7 +352,6 @@ isolates2 <- regions(isolates2)
 ####################
 
 # Creating groups 
-
 
 
 
