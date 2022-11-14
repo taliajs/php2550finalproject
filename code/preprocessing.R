@@ -12,7 +12,7 @@
 library(tidyverse)
 library(dplyr)
 library(readr)
-library(lubridate)
+library(stringr)
 
 # read in isolates dataset
 isolates <- read.csv("isolates.csv")
