@@ -1,0 +1,175 @@
+---
+title: "Exploration of Methods for Geographic Visualization"
+author: "Tova Ibbotson"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Static Visualization
+```{r load packages, warning=FALSE, message=FALSE}
+library(knitr)
+library(ggplot2)
+library(dplyr)
+require(maps)
+require(viridis)
+
+theme_set(theme_void())
+
+```
+
+```{r load data, warning=FALSE}
+isolates <- read.csv("isolates2.csv")
+
+# Restrict to isolates that have a state identified
+isolate_states <- isolates %>% 
+  filter(!state == "Not Specified") %>% 
+  rename(cdc_region = region) %>% 
+  rename(region = state) %>%
+  filter(!(region == "Other"|region == "PR")) %>%
+  filter(Collection.year==c(2015:2022))
+
+isolate_states$region <- tolower(state.name[match(isolate_states$region,state.abb)])
+
+```
+
+```{r missing, results='hide'}
+sum(is.na(isolates$Lat.Lon))/nrow(isolates)
+sum(!isolates$state=="Not Specified")/nrow(isolates)
+
+```
+
+Over 98% of the data in the latitude-longitude variable are missing, so geographic visualization of the data must be done at the state-level. We have state-level location information for roughly 60% of the isolates, so geographic analysis will be restricted to the 1060 observations collected between 2015 and 2022 with state-level location data. Figure 1 shows the number of isolates found in each state over the time period.
+
+
+```{r map state}
+states_map <- map_data("state")
+
+print_map_states <- 
+  isolate_states %>% 
+  group_by(region) %>% 
+  summarize(n_isolates = n()) %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
+  labs(title = "Figure 1", subtitle = "Number of Isolates by State")
+
+print_map_states
+
+# Create table of count of isolates by state
+a <- isolate_states %>% 
+  group_by(region) %>% 
+  summarize(n_isolates = n())
+
+```
+
+```{r map cdc region}
+# Create table of count of isolates by state
+b <- isolate_states %>% 
+  group_by(cdc_region) %>% 
+  summarize(n_isolates = n())
+
+print_map_cdc <- 
+  left_join(b, isolate_states, by = "cdc_region") %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
+  labs(title = "Figure 2", subtitle = "Number of Isolates by Microbiological Monitoring Region")
+
+print_map_cdc
+
+```
+
+```{r bifsco map}
+
+bifsco_states <- isolates %>%
+  distinct(state,region) %>%
+  filter(!(state == "Not Specified" | state == "Other" |
+             state == "HI" | state == "AK" | state == "PR")) %>%
+  rename(cdc_region = region) %>%
+  rename(region = state)
+
+bifsco_states$region <- tolower(state.name[match(bifsco_states$region,state.abb)])
+
+print_bifsco_map <- bifsco_states %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = factor(cdc_region)), color = "white") +
+  scale_fill_discrete(name = "Region") +
+  borders("state") +
+  labs(title = "Figure 3", subtitle = "BIFSCo Microbiological Monitoring Regions")
+
+print_bifsco_map
+
+```
+
+```{r map by var, warning = FALSE, message=FALSE}
+# By Collection.year
+c <- isolate_states %>% 
+  group_by(region,Collection.year) %>% 
+  summarize(n_isolates = n())
+
+print_map_year <- c %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
+  labs(title = "Figure 4", subtitle = "Number of Isolates Over Time") +
+  facet_wrap(vars(Collection.year))
+
+print_map_year
+
+# By Serovar
+e <- isolate_states %>% 
+  group_by(region,Serovar) %>% 
+  summarize(n_isolates = n())
+
+print_map_serovar <- e %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
+  labs(title = "Figure 4", subtitle = "Number of Isolates Over Time") +
+  facet_grid(rows = vars(Serovar))
+
+print_map_serovar
+
+e %>%
+  left_join(states_map, by = "region") %>%
+  filter(Serovar == "Typhimurium (Copenhagen)") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
+  labs(title = "Figure 5", subtitle = "Number of Isolates Over Time")
+
+print_map_serovar
+
+```
+
+## Interactive Visualization
+
+shiny with above facet wrap as filter, if time allows try to add hover summary box
+
+
+
+
+
+
+\newpage
+# References
+
+
+# Appendix: All code for this report
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
