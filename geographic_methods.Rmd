@@ -55,6 +55,7 @@ print_map_states <-
   ggplot(aes(long, lat, group = group)) +
   geom_polygon(aes(fill = n_isolates), color = "white") +
   scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
   labs(title = "Figure 1", subtitle = "Number of Isolates by State")
 
 print_map_states
@@ -78,6 +79,7 @@ print_map_cdc <-
   ggplot(aes(long, lat, group = group)) +
   geom_polygon(aes(fill = n_isolates), color = "white") +
   scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
   labs(title = "Figure 2", subtitle = "Number of Isolates by Microbiological Monitoring Region")
 
 print_map_cdc
@@ -85,6 +87,35 @@ print_map_cdc
 ```
 
 -create a map of BIFSCo regions, see if we can add borders around groups of states
+
+```{r bifsco map}
+
+bifsco_states <- isolates %>%
+  distinct(state,region) %>%
+  filter(!(state == "Not Specified" | state == "Other" |
+             state == "HI" | state == "AK" | state == "PR")) %>%
+  rename(cdc_region = region) %>%
+  rename(region = state)
+
+bifsco_states$region <- tolower(state.name[match(bifsco_states$region,state.abb)])
+
+print_bifsco_map <- bifsco_states %>%
+  left_join(states_map, by = "region") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = factor(cdc_region)), color = "white") +
+  geom_sf(fill = "transparent", color = "gray20", size = 1, 
+          data = . %>% group_by(cdc_region) %>% summarise()) +
+  scale_fill_discrete(name = "Region") +
+  borders("state") +
+  labs(title = "Figure 3", subtitle = "Map of CDC Microbiological Monitoring Regions")
+
+print_bifsco_map
+
+bifsco_states %>% group_by(cdc_region) %>% summarise()
+
+
+
+```
 
 
 -next, facet wrap by a variable with <5 levels
