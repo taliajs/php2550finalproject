@@ -16,4 +16,4 @@ This repository contains the code associated with our final project, which is fo
   - `EDA.Rmd`: This file contains the code for the exploratory analysis.
   - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing
   - `Model.R`: Initial model building for a prediction model that predicts the probability of a specific serovar for Salmonella. 
-  - `geographic_methods.Rmd`: Exploring methods for geographic visualizations.
+  - `geographic_methods.Rmd` and `geographic_methods.pdf`: Exploring methods for geographic visualizations.
