@@ -4,8 +4,7 @@
 
 
 ## About 
-This repository contains the code associated with our final project, which is focused on Salmonella vaccines for poultry. Our goal for this project is to identify strains/flocks/regions, etc. that should be prioritized for vaccination campaigns (e.g specific strains, certain flocks and/or certain regions). For instance, looking at where, when and how are outbreaks happening generally, and looking at Salmonella outbreaks that cause illness. 
-
+This repository contains the code associated with our final project, which is focused on identifying "targets" for Salmonella vaccines. Our goal for this project is to identify strains/regions/time of year, etc. that should be prioritized for vaccination campaigns. For instance, Are there certain/specific regions and time of year that should be focused on when thinking about vaccination? Are there certain strains of Salmonella that are more prevalant than others?
 
 ## Files
 
