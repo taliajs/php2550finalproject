@@ -307,27 +307,27 @@ isolates2 <- isolates2 %>% filter(Year == 2017 | Year == 2018 | Year == 2019 |
 
 # grouping months into seasons 
 
-for (i in 1:nrow(isolates2)){
-  # if the month is Mar, Apr, May --> spring
-  if (isolates2$Collection.month[i] %in% c(3,4,5)){
-    # then new variable season has the value 1
-    isolates2$season[i] <- 1
-  }# if the month is Jun, Jul, Aug --> summer
-  else if (isolates2$Collection.month[i] %in% c(6,7,8)){
-    # then new variable season has the value 2
-    isolates2$season[i] <- 2
-  }# if the month is Sep,Oct,Nov --> fall
-  else if(isolates2$Collection.month[i] %in% c(9,10,11)){
-    # then new variable season has the value 3
-    isolates2$season[i] <- 3
-  }# if the month is Dec, Jan, Feb --> winter
-  else if (isolates2$Collection.month[i] %in% c(12,1,2)){
-    # then new variable season has the value 4
-    isolates2$season[i] <- 4
-  } else { #if month not specified, NA 
-    isolates2$season[i] <- NA
-  }
-}
+#for (i in 1:nrow(isolates2)){
+#  # if the month is Mar, Apr, May --> spring
+#  if (isolates2$Collection.month[i] %in% c(3,4,5)){
+#    # then new variable season has the value 1
+#    isolates2$season[i] <- 1
+#  }# if the month is Jun, Jul, Aug --> summer
+#  else if (isolates2$Collection.month[i] %in% c(6,7,8)){
+#    # then new variable season has the value 2
+#    isolates2$season[i] <- 2
+#  }# if the month is Sep,Oct,Nov --> fall
+#  else if(isolates2$Collection.month[i] %in% c(9,10,11)){
+#    # then new variable season has the value 3
+#    isolates2$season[i] <- 3
+#  }# if the month is Dec, Jan, Feb --> winter
+#  else if (isolates2$Collection.month[i] %in% c(12,1,2)){
+#    # then new variable season has the value 4
+#    isolates2$season[i] <- 4
+#  } else { #if month not specified, NA 
+#    isolates2$season[i] <- NA
+#  }
+#}
 
 # export isolates2 csv
 write.csv(isolates2, file = "isolates2.csv")
