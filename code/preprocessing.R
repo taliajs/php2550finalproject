@@ -278,57 +278,27 @@ df <- isolates2
 isolates2 <- regions(isolates2)
 
 
-####################
-## YEAR AND MONTH ##
-####################
+#################################
+## DATE, TIME, YEAR, and MONTH ##
+#################################
 
-# Extracting the year and month from `collection.date` variable
+# Extracting the date and time from `Create.date` variable, and creating `Date` and `Time` variables
+isolates2$Date <- str_sub(isolates2$Create.date, 1, -str_locate(isolates2$Create.date,"T")[1])
 
-# replacing the NA
-isolates2$Collection.date[is.na(isolates2$Collection.date)] <- ""
+isolates2$Time <- str_sub(isolates2$Create.date,
+                          (str_locate(isolates2$Create.date,"T")[1]+1),
+                          (str_locate(isolates2$Create.date,"Z")[1]-1))
 
-# process the year and month
-for (i in 1:length(isolates2$Collection.date)){
-  # some string has the date in the version of "%mm/%dd/%YYYY", filtering those strings out
-  if(str_detect(isolates2$Collection.date[i],"/")==TRUE){
-    # character length of the string for "%m/%d/%YYYY"
-    if(nchar(isolates2$Collection.date[i])==8){
-      # extract the year at the position 5 to 8
-      isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],5,8)
-      # extract the month at the position 1
-      isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],1,1)
-    }
-    # character length of the string for "%mm/%d/%YYYY" or "%m/%dd/%YYYY"
-    else if(nchar(isolates2$Collection.date[i])==9){
-      # extract the year at the position 6 to 9
-      isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],6,9)
-      
-      isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],1,2)
-      # when the string is in the format of "%m/%dd/%YYYY", it will include "/" in the month, so we need further extraction
-      if(str_detect(isolates2$Collection.month[i],"/")==TRUE){
-        # removing the "/" in the month from the string "%m/%dd/%YYYY"
-        isolates2$Collection.month[i] <- str_extract(isolates2$Collection.month[i],"(\\d)+")
-      }
-    }
-    # character length of the string for "%mm/%dd/%YYYY"
-    else if(nchar(isolates2$Collection.date[i])==10){
-      # extract the year at the position 7 to 10
-      isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],7,10)
-      # extract the year at the position 1 to 2
-      isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],1,2)
-    }
-  }
-  # other dates are either missing or in the format as "%Y-%m-%d"
-  else if(str_detect(isolates2$Collection.date[i],"/")==FALSE){
-    # extract the year at position 1 to 4
-    isolates2$Collection.year[i] <- str_sub(isolates2$Collection.date[i],1,4)
-    # extract the month at position 6 to 7
-    isolates2$Collection.month[i] <- str_sub(isolates2$Collection.date[i],6,7)
-  }
-}
-# convert the class of year and month to numeric from characters
-isolates2$Collection.month <- as.numeric(isolates2$Collection.month)
-isolates2$Collection.year <- as.numeric(isolates2$Collection.year)
+# Create `Year`, `Month`, and `Date` variables using lubridate functions
+isolates2$Year <- year(isolates2$Date)
+
+isolates2$Month <- month(isolates2$Date)
+
+isolates2$Week <- week(isolates2$Date)
+
+# Restrict data to 2017 to present
+isolates2 <- isolates2 %>% filter(Year == 2017 | Year == 2018 | Year == 2019 |
+                                    Year == 2020 | Year == 2021 | Year == 2022)
 
 
 #############
