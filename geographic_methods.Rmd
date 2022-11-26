@@ -162,8 +162,6 @@ shiny with above facet wrap as filter, if time allows try to add hover summary b
 
 
 
-
-
 \newpage
 # References
 
