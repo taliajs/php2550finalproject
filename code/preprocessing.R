@@ -4,9 +4,10 @@
   # creating host categories
   # standardizing location
   # creating regions
-  # processing year and month 
+  # processing year and month and time
   # seasons
-  # categories/groups for isolate source (TBD)
+  # genetic info
+  # isolate source categories/groups (TBD/in progress)
 
 # Libraries
 library(tidyverse)
