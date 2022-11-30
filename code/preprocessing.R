@@ -535,6 +535,11 @@ for (i in 1:nrow(isolates2)) {
   #   isolates2$isolate_source_type[i] <- "other"
   # }
   
+  # -- OTHER -- 
+  if (isolates2$isolate_source[i] == "FALSE") {
+    isolates2$isolate_source[i] <- "other"
+    isolates2$isolate_source_type[i] <- "other"
+  }
 }
 
 # export isolates2 csv
