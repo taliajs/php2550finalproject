@@ -104,7 +104,7 @@ standardize_location <- function(df) {
   #'@return standardized location (state abbreviation)
   
   # create standardized location variable (state abbreviation)
-  isolates2$state <- vector(length = length(isolates2$Location)) # this will be the standardized location, aka 
+  isolates2$state <- vector(length = length(isolates2$Location)) # this will be the standardized location 
   
   # create variable that represents the initial extracted location values 
   isolates2$location2 <- vector(length = length(isolates2$Location)) 
@@ -364,10 +364,181 @@ write.csv(isolates2, file = "isolates2.csv")
 ## ISOLATE SOURCE ##
 ####################
 
+#isolates2 <- read.csv("isolates2.csv")
+
+
 # Creating groups 
+#main category (e.g meat, poultry)
+isolates2$isolate_source <- vector(length = length(isolates2$Isolation.source)) 
+# sub categories (eg. for poultry --> chicken and turkey, for meat: beef, pork)
+isolates2$isolate_source_type <- vector(length = length(isolates2$Isolation.source)) 
 
+for (i in 1:nrow(isolates2)) {
+  
+  # -- POULTRY --
+  if (grepl("chicken|turkey|Chicken|CHICKEN|Chicekn|Cicken|Turkey|poultry|Poultry", isolates2$Isolation.source[i])) {
+    #print(isolates2$Isolation.source[i])
+    isolates2$isolate_source[i] <- "poultry"
+  }
+  # poultry categories
+  if (grepl("chicken|Chicken|CHICKEN|Chicekn|Cicken", isolates2$Isolation.source[i])) {
+    #testing <- c(testing, isolates2$Isolation.source[i])
+    #print(isolates2$Isolation.source[i])
+    isolates2$isolate_source_type[i] <- "chicken"
+  }
+  if (grepl("turkey|Turkey", isolates2$Isolation.source[i])) {
+    #testing <- c(testing, isolates2$Isolation.source[i])
+    #print(isolates2$Isolation.source[i])
+    isolates2$isolate_source_type[i] <- "turkey"
+  } else if (grepl("poultry|Poultry", isolates2$Isolation.source[i])) {
+    isolates2$isolate_source_type[i] <- "poultry"
+  } 
+  
+  #unknown poultry
+  # else if (grepl("Thighs|Breast|Wings", isolates2$Isolation.source)) {
+  #   isolates2$isolate_source_type[i] <- "poultry"
+  #   isolates2$isolate_source_type[i] <- "unknown poultry"
+  # }
+  
+  # -- MEAT --
+  if (grepl("cattle|Cattle|beef|Beef|Trimmings|swine|Swine|pork|Pork|goat|Goat|sheep|Sheep|lamb|Lamb", isolates2$Isolation.source[i])) {
+    #testing <- c(testing, isolates2$Isolation.source[i])
+    #print(isolates2$Isolation.source[i])
+    isolates2$isolate_source[i] <- "meat"
+  } 
+  # meat categories
+  if (grepl("cattle|Cattle|beef|Beef|Trimmings", isolates2$Isolation.source[i])) {
+    isolates2$isolate_source_type[i] <- "beef"
+  } 
+  if (grepl("swine|Swine|pork|Pork", isolates2$Isolation.source[i])){
+    isolates2$isolate_source_type[i] <- "pork" 
+  } 
+  
+  if (grepl("goat|Goat|sheep|Sheep|lamb|Lamb", isolates2$Isolation.source[i])) {
+    isolates2$isolate_source_type[i] <- "other meat"
+  } 
+  
+  # -- EGGS --
+  if (grepl("egg", isolates2$Isolation.source[i]) | 
+      grepl("Egg", isolates2$Isolation.source[i]) |
+      grepl("Egg yolks", isolates2$Isolation.source[i]) |
+      grepl("Egg", isolates2$Isolation.source[i]) & grepl("yolks", isolates2$Isolation.source[i]) |
+      grepl("Egg", isolates2$Isolation.source[i]) & grepl("whites", isolates2$Isolation.source[i])
+  ) {
+    isolates2$isolate_source[i] <- "eggs"
+    isolates2$isolate_source_type[i] <- "eggs"
+  }
+  
+  # -- FECES (feces + stool) -- 
+  if (grepl("stool|Stool|feces|Feces|fecal", isolates2$Isolation.source[i])) {
+    isolates2$isolate_source[i] <- "feces"
+    isolates2$isolate_source_type[i] <- "feces"
+  }
+  
+  # # -- CLINICAL --
+  # else if (grepl("swab|Swab", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "clinical"
+  #   isolates2$isolate_source_type[i] <- "swab"
+  # } 
+  # # organs
+  # else if (grepl("Abdomen|aorta|Aorta|lung|Lung|colon|Colon|intestine|Intestine|intestinal|liver|Liver|lymph node|Lymph Node|brain|kidney|Kidney|jejunum|pericardium|Pericardium|brain|breast|heart|Heart|spleen|joints|trachea|Trachea|organ|small|Small", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "clinical"
+  #   isolates2$isolate_source_type[i] <- "organs"
+  # } 
+  # #anatomy
+  # else if (grepl("joint|Joint|hip|LEGS|Bone|foot|yok sac|Huck|yolks|Yolk sac|Rectal|nasal|tonsil|pluera|Groin|Hip|
+  #           SCROTUM|bone", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "clinical"
+  #   isolates2$isolate_source_type[i] <- "anatomical"
+  # } 
+  # # other clinical 
+  # else if (grepl("Vaginal|wound|Abscess|abscess|necropsy|carcass|lab|sputum|perionitis|aspirate|Cyst|CSF|autopsy|
+  #           auxotroph|ISOLATE", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "clinical"
+  #   isolates2$isolate_source_type[i] <- "other clinical"
+  # } 
+  # 
+  # -- BIOLOGICAL (biological fluids, tissues) -- 
+  # if (grepl("biological fluid|fluid|Fluid|tissue|TISSUE", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "biological"
+  #   isolates2$isolate_source_type[i] <- "biological"
+  # }
+  # 
+  # # -- BODILY FLUIDS -- 
+  # if (grepl("blood|Blood|body fluid|urine|Urine|URINE", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "bodily fluids"
+  #   isolates2$isolate_source_type[i] <- "bodily fluids"
+  # }
+  
+  # -- ENVIRONMENT -- 
+  # else if (grepl("environment|water|lagoon|lake|river|River|Water|sewage|soil|stream|Creek|Foam|Enteric pool", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "environmental"
+  #   isolates2$isolate_source_type[i] <- "environmental"
+  # }
+  
+  # -- FOOD --
+  # if (grepl("spinach", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "food"
+  #   isolates2$isolate_source_type[i] <- "leafy greens"
+  # } else if (grepl("Animal feed|Pet food|pet food|Cat food|treat|Kibble|kibble", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "food"
+  #   isolates2$isolate_source_type[i] <- "animal food"
+  # } else if (grepl("apple|cantaloupe|pudding|olive|Food|Hazelnut|hazelnut|Meal|Peanut butter|Pecans|pecans|almonds|Almonds|Tomato|tomato|salad|celery|wheat|meal|Celery|corn|Ready to eat|hamburger|peanut butter", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "food"
+  #   isolates2$isolate_source_type[i] <- "food"
+  # }
+  
+  # # -- ANIMAL --
+  # if (grepl("human|ratite|sea lion|Reptile|Siluriformes|feline|equine|Hock|hock|turtle||goose|dog|snake|peafowl|Wild|mammal|Deer|parrot|mouse|horse|caprine|opossum|Canis|rabbit", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "animal"
+  #   isolates2$isolate_source_type[i] <- "animal"
+  # }
+  # 
+  # if (grepl("bovine|Bos taurus|Veal", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "animal"
+  #   isolates2$isolate_source_type[i] <- "cattle"
+  # }
+  # 
+  # if (grepl("porcine", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "animal"
+  #   isolates2$isolate_source_type[i] <- "swine"
+  # }
+  # 
+  # if (grepl("Gallus|gallus|avian clocae|Columba", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "animal"
+  #   isolates2$isolate_source_type[i] <- "bird"
+  # }
+  # 
+  
+  # -- NOT AVAILABLE -- 
+  if (grepl("Not collected|not known|Unknown", isolates2$Isolation.source[i])) {
+    isolates2$isolate_source[i] <- "not available"
+    isolates2$isolate_source_type[i] <- "not available"
+  } 
+  
+  # -- NA -- 
+  if (is.na(isolates2$Isolation.source[i])) {
+    isolates2$isolate_source[i] <- "NA"
+    isolates2$isolate_source_type[i] <- "NA"
+  }
+  
+  # -- OTHER
+  # else {
+  #   isolates2$isolate_source[i] <- "other"
+  #   isolates2$isolate_source_type[i] <- "other"
+  # }
+  # 
+  
+  #-- OTHER
+  # if (grepl("treat|soil|node|feed|lagoon|food", isolates2$Isolation.source[i])) {
+  #   isolates2$isolate_source[i] <- "other"
+  #   isolates2$isolate_source_type[i] <- "other"
+  # }
+  
+}
 
-
+# export isolates2 csv
+write.csv(isolates2, file = "isolates2.csv")
 
 
 
