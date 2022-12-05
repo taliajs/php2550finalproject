@@ -339,7 +339,7 @@ isolates2 <- isolates2 %>% filter(Year == 2017 | Year == 2018 | Year == 2019 |
 # Creating outbreak variables
 
 # finding associations between Min.same and Min.diff on the provided Outbreak info
-outbreak_df <- isolates2 %>% filter(!is.na(Outbreak)) %>% 
+outbreak_df <- isolates %>% filter(Outbreak!="") %>% 
   select(c(Min.same,Min.diff,Outbreak))
 outbreak_df$Outbreak <- as.factor(outbreak_df$Outbreak)
 
@@ -355,10 +355,6 @@ exp_outbreak[is.na(exp_outbreak)] <- 0
 
 new_outbreak <- ifelse(exp_outbreak >= 0.9813, 1, 0)
 isolates2 <- cbind(isolates2,new_outbreak)
-
-
-# export isolates2 csv
-write.csv(isolates2, file = "isolates2.csv")
 
 ####################
 ## ISOLATE SOURCE ##
