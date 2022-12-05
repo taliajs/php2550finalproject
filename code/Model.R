@@ -10,7 +10,7 @@ library(modelr)
 library(lmtest)
 
 # load in dataset
-isolates <- read.csv("isolates2.csv")
+isolates <- read.csv("~/Downloads/php2550finalproject-main 2/code/isolates2.csv")
 
 
 ########################### imputations before fitting the model ###########################
@@ -114,5 +114,59 @@ predict(model3, newdata)
 
 
 
+isolates2 <- isolates %>% select(c("new_outbreak","Host.category","state","region","Host.disease",
+                                   "Host","AST.phenotypes","Virulence.genotypes","Year","Month","Week",
+                                   "isolate_source_type","N50","Length","SNP.cluster","Contigs",
+                                   "Assembly","Computed.types","TaxID",
+                                   "Stress.genotypes","Min.same","Min.diff","WGS.prefix"))
+
+isolates2$Host.category <- as.factor(isolates2$Host.category)
+isolates2$state <- as.factor(isolates2$state)
+isolates2$region <- as.factor(isolates2$region)
+isolates2$Host.disease <- as.factor(isolates2$Host.disease)
+isolates2$Host <- as.factor(isolates2$Host)
+isolates2$AST.phenotypes<- as.factor(isolates2$AST.phenotypes)
+isolates2$Virulence.genotypes<- as.factor(isolates2$Virulence.genotypes)
+isolates2$SNP.cluster<- as.factor(isolates2$SNP.cluster)
+isolates2$Computed.types <- as.factor(isolates2$Computed.types)
+isolates2$Assembly <- as.factor(isolates2$Assembly)
+isolates2$Stress.genotypes<- as.factor(isolates2$Stress.genotypes)
+isolates2$WGS.prefix<- as.factor(isolates2$WGS.prefix)
 
 
+
+library(rpart)
+positiveWeight <- 1.0 / (nrow(subset(isolates2, new_outbreak== 1)) / nrow(isolates2))
+negativeWeight <- 1.0 / (nrow(subset(isolates2, new_outbreak== 0)) / nrow(isolates2))
+modelWeights <- ifelse(isolates2$new_outbreak== 0,negativeWeight, positiveWeight)
+tree_model <- rpart(new_outbreak~., data=isolates2,weights = modelWeights,minbucket=3,minsplit=10,cp=0.0001)
+plot(tree_model)
+plotcp(tree_model)
+printcp(tree_model)
+
+
+# isolates2 <- isolates2 %>% select(-c("Host","Host.disease","AST.phenotypes","Host.category"))
+# isolates2_mice <- mice(isolates2, 5, pri=F)
+# isolates2 <- mice::complete(isolates2_mice,action="long")
+# positiveWeight <- 1.0 / (nrow(subset(isolates2, new_outbreak== 1)) / nrow(isolates2))
+# negativeWeight <- 1.0 / (nrow(subset(isolates2, new_outbreak== 0)) / nrow(isolates2))
+# modelWeights <- ifelse(isolates2$new_outbreak== 0,negativeWeight, positiveWeight)
+# tree_model <- rpart(new_outbreak~., isolates2,weights = modelWeights,minbucket=3,minsplit=10,cp=0.0001)
+# plot(tree_model)
+# plotcp(tree_model)
+# printcp(tree_model)
+
+#running a MCA
+# MCA(isolates2,ncp=2)
+
+# imputation on categorical variable
+library(missMDA)
+imputeMCA(isolates2[,c(2,4,8,11,13,14,16,19)], ncp=3)
+
+# imputation on numeric variable
+
+# using predictive mean matching for multiple imputations
+imputed<- mice(isolates2[,c(1,3,5,6,7,9,10,12,15,17,18)], m=2)
+
+# Add the data back to original data using one of the iterations
+complete <- mice::complete(imputed, 3)
