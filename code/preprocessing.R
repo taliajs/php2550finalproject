@@ -512,14 +512,14 @@ for (i in 1:nrow(isolates2)) {
   
   # -- NOT AVAILABLE -- 
   if (grepl("Not collected|not known|Unknown", isolates2$Isolation.source[i])) {
-    isolates2$isolate_source[i] <- "not available"
-    isolates2$isolate_source_type[i] <- "not available"
+    isolates2$isolate_source[i] <- "unknown"
+    isolates2$isolate_source_type[i] <- "unknown"
   } 
   
   # -- NA -- 
   if (is.na(isolates2$Isolation.source[i])) {
-    isolates2$isolate_source[i] <- "NA"
-    isolates2$isolate_source_type[i] <- "NA"
+    isolates2$isolate_source[i] <- "unknown"
+    isolates2$isolate_source_type[i] <- "unknown"
   }
   
   # -- OTHER
