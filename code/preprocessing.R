@@ -16,7 +16,7 @@ library(readr)
 library(stringr)
 
 # read in isolates dataset
-isolates <- read.csv("isolates.csv")
+isolates <- read.csv("data/isolates.csv")
 # rename first column 
 colnames(isolates)[colnames(isolates) == "X.Organism.group"] <- "Organism.group"
 
@@ -275,7 +275,7 @@ regions <- function(df) {
   }
   return(df)
 }
-df <- isolates2 
+#df <- isolates2 
 isolates2 <- regions(isolates2)
 
 
