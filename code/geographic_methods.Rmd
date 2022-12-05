@@ -138,7 +138,18 @@ print_map_serovar <- e %>%
   scale_fill_viridis(option = "D", name = "Number of Isolates") +
   borders("state") +
   labs(title = "Figure 4", subtitle = "Number of Isolates Over Time") +
-  facet_wrap(vars(Serovar))
+  facet_grid(rows = vars(Serovar))
+
+print_map_serovar
+
+e %>%
+  left_join(states_map, by = "region") %>%
+  filter(Serovar == "Typhimurium (Copenhagen)") %>%
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = n_isolates), color = "white") +
+  scale_fill_viridis(option = "D", name = "Number of Isolates") +
+  borders("state") +
+  labs(title = "Figure 5", subtitle = "Number of Isolates Over Time")
 
 print_map_serovar
 
@@ -147,8 +158,6 @@ print_map_serovar
 ## Interactive Visualization
 
 shiny with above facet wrap as filter, if time allows try to add hover summary box
-
-
 
 
 
