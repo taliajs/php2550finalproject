@@ -7,7 +7,7 @@
   # processing year and month and time
   # seasons
   # genetic info
-  # isolate source categories/groups (TBD/in progress)
+  # isolate source categories/groups
 
 # Libraries
 library(tidyverse)
@@ -173,6 +173,15 @@ standardize_location <- function(df) {
       state_loc <- ifelse(loc %in% state.name, isolates2$state[i] <- state.abb[match(loc, state.name)], "no")
     }
     
+    # dealing with Washington state and New York state
+    else if (isolates2$location2[i] == "Washington state") {
+      isolates2$state[i] <- "WA"
+    }
+    
+    else if (isolates2$location2[i] == "New York state" | isolates2$location2[i] == "New York State") {
+      isolates2$state[i] <- "NY"
+    }
+    
     #BIFSCo regions, or other regions/areas (e.g. Midwest, Western Region) --> assign to "OTHER"
     else {
       isolates2$state[i] <- "Other"
@@ -217,65 +226,60 @@ regions <- function(df) {
   # creates regions for the states
   #'@param data frame with the states variable
   #'@return regions
-  
-  df <- df
+
   
   # make a new variable for region (and add it to dataframe with states)
-  df$region <- vector(length = length(df$state))
+  isolates2$region <- vector(length = length(isolates2$state))
   
-  for (i in 1:nrow(df)) {
-    if (df$state[i] %in% region1) {
-      df$region[i] <- 1
-    } else if (df$state[i] %in% region2) {
-      df$region[i] <- 2 
-    } else if (df$state[i] %in% region3) {
-      df$region[i] <- 3
-    } else if (df$state[i] %in% region4) {
-      df$region[i] <- 4 
-    } else if (df$state[i] %in% region5) {
-      df$region[i] <- 5
-    } else if (df$state[i] %in% region6) {
-      df$region[i] <- 6 
-    } else if (df$state[i] %in% region7) {
-      df$region[i] <- 7
-    } else if (df$state[i] %in% region8) {
-      df$region[i] <- 8
+  for (i in 1:nrow(isolates2)) {
+    if (isolates2$state[i] %in% region1) {
+      isolates2$region[i] <- 1
+    } else if (isolates2$state[i] %in% region2) {
+      isolates2$region[i] <- 2 
+    } else if (isolates2$state[i] %in% region3) {
+      isolates2$region[i] <- 3
+    } else if (isolates2$state[i] %in% region4) {
+      isolates2$region[i] <- 4 
+    } else if (isolates2$state[i] %in% region5) {
+      isolates2$region[i] <- 5
+    } else if (isolates2$state[i] %in% region6) {
+      isolates2$region[i] <- 6 
+    } else if (isolates2$state[i] %in% region7) {
+      isolates2$region[i] <- 7
+    } else if (isolates2$state[i] %in% region8) {
+      isolates2$region[i] <- 8
     } 
     
     # some location had the BIFsco Regions mentioned --> so get those!
-    else if (grepl(" ", df$location2[i])) {
-      split_bifsco <- sapply(strsplit(df$location2[i], " "), `[`, 3) 
-      #print(split_bifsco) 
-      df$region[i] <- split_bifsco
-      
-      # for the longer BIFsco Regions 
-      split_bifsco <- sapply(strsplit(df$location2[i], " "), `[`, 5) 
-      df$region[i] <- split_bifsco
-    }
     
+    else if (grepl("BIFSCo", isolates2$location2[i])) {
+      split_bifsco <- strsplit(isolates2$location2[i], " ")
+      split1 <- sapply(split_bifsco, `[`, 3)
+      ifelse(grepl("[0-9]", split1), isolates2$region[i] <- split1, isolates2$region[i] <- sapply(split_bifsco, `[`, 5))
+    }
+  
     # other regions 
-    else if (grepl("Western Region", df$location2[i])) {
+    else if (grepl("Western Region", isolates2$location2[i])) {
       # assume Western Region is region 2
-      df$region[i] <- 2
+      isolates2$region[i] <- 2
     }
     
-    else if (grepl("Midwest", df$location2[i])) {
+    else if (grepl("Midwest", isolates2$location2[i])) {
       # Midwest states (source 5)
       #region 5: 5/5
       #region 6: 3/3
       #region 8: 4/18
       # most of the Midwest states fall in between BIFSCo regions 5 and 6 (all 8 states listed in regions 5 and 6 are included as the "Midwest). So randomly choose either region 5 or 6
-      df$region[i] <- sample(5:6, 1)
+      isolates2$region[i] <- sample(5:6, 1)
     }
     
     # if state not specified --> NA 
     else {
-      df$region[i] <- NA
+      isolates2$region[i] <- NA
     }
   }
-  return(df)
+  return(isolates2)
 }
-#df <- isolates2 
 isolates2 <- regions(isolates2)
 
 
