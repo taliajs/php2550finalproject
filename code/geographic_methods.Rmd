@@ -21,7 +21,7 @@ theme_set(theme_void())
 ```
 
 ```{r load data, warning=FALSE}
-isolates <- read.csv("isolates2.csv")
+isolates <- read.csv("data/isolates2.csv")
 
 # Restrict to isolates that have a state identified
 isolate_states <- isolates %>% 
@@ -32,6 +32,8 @@ isolate_states <- isolates %>%
   filter(Collection.year==c(2015:2022))
 
 isolate_states$region <- tolower(state.name[match(isolate_states$region,state.abb)])
+
+/Users/tovaibbotson/Documents/GitHub/php2550finalproject/data
 
 ```
 
