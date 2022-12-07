@@ -4,6 +4,8 @@ library(tidyverse)
 # read in data
 isolates2 <- read.csv("data/isolates2.csv")
 
+isolates_test <- read.csv("isolates2.csv")
+
 # ISOLATE SOURCES
 
 #unique isolate sources and types
