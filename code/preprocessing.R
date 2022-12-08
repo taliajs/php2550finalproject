@@ -15,6 +15,7 @@ library(dplyr)
 library(readr)
 library(stringr)
 library(lubridate)
+library(rpart.plot)
 
 # read in isolates dataset
 isolates <- read.csv("data/isolates.csv")
@@ -447,7 +448,6 @@ outbreak_df <- isolates %>% filter(!is.na(Min.diff)&!is.na(Min.same)) %>%
 outbreak_df$Outbreak <- ifelse(outbreak_df$Outbreak=="",0,1)
 
 # finding associations between Min.same and Min.diff on the provided Outbreak info
-library(rpart.plot)
 positiveWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak==1)) / nrow(outbreak_df))
 negativeWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak== 0)) / nrow(outbreak_df))
 
