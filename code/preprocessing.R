@@ -14,6 +14,7 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 library(stringr)
+library(lubridate)
 
 # read in isolates dataset
 isolates <- read.csv("data/isolates.csv")
@@ -336,29 +337,8 @@ isolates2 <- isolates2 %>% filter(Year == 2017 | Year == 2018 | Year == 2019 |
 
 
 
-####################
-## GENETIC INFO ##
-####################
 
-# Creating outbreak variables
 
-# finding associations between Min.same and Min.diff on the provided Outbreak info
-outbreak_df <- isolates %>% filter(Outbreak!="") %>% 
-  select(c(Min.same,Min.diff,Outbreak))
-outbreak_df$Outbreak <- as.factor(outbreak_df$Outbreak)
-
-outbreak_logit <- glm(Outbreak ~sqrt(Min.diff), 
-                      data = outbreak_df, family = "binomial")
-
-exp_outbreak <- predict(outbreak_logit, newdata=isolates2, type="response")
-exp_outbreak[is.na(exp_outbreak)] <- 0
-
-# threshold of predicted outbreak 0.9813, representing 75% of data with Outbreak variable pressent
-# outbreak <- cbind(outbreak,pred)
-# summary(outbreak$pred)
-
-new_outbreak <- ifelse(exp_outbreak >= 0.9813, 1, 0)
-isolates2 <- cbind(isolates2,new_outbreak)
 
 ####################
 ## ISOLATE SOURCE ##
@@ -452,6 +432,35 @@ for (i in 1:nrow(isolates2)) {
     isolates2$isolate_source_type[i] <- "other"
   }
 }
+
+####################
+## GENETIC INFO ##
+####################
+
+# Creating new outbreak variables
+
+# subset the data of outbreak variable and information of Min.diff and Min.same
+outbreak_df <- isolates %>% filter(!is.na(Min.diff)&!is.na(Min.same)) %>% 
+  select(c(Min.same,Min.diff,Outbreak))
+
+# re-define the Outbreak value into numeric value of 0 (no existing outbreak) and 1 (present an Outbreak)
+outbreak_df$Outbreak <- ifelse(outbreak_df$Outbreak=="",0,1)
+
+# finding associations between Min.same and Min.diff on the provided Outbreak info
+library(rpart.plot)
+positiveWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak==1)) / nrow(outbreak_df))
+negativeWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak== 0)) / nrow(outbreak_df))
+
+# prepare the weights based on the value of Outbreak variable
+modelWeights <- ifelse(outbreak_df$Outbreak== 0,negativeWeight, positiveWeight)
+
+# plot the decision tree to visualize the conditions on Min.diff and Min.same to the Outbreak prevalence
+tree_model <- rpart(Outbreak~., data=outbreak_df,weights = modelWeights,minbucket=3,minsplit=10,cp=0.01)
+rpart.plot(tree_model)
+
+# decide to choose 0.5 prevalence of having an Outbreak as expected (min.diff <13 & min.same >=1)
+isolates2$new_outbreak <- ifelse(isolates2$Min.diff<13&isolates2$Min.same>=1,1,0)
+isolates2$new_outbreak[is.na(isolates2$new_outbreak)] <- 0
 
 # export isolates2 csv
 write.csv(isolates2, file = "data/isolates2.csv")
