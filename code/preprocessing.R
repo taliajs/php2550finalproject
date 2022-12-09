@@ -46,8 +46,9 @@ isolates2$Serovar[isolates2$Serovar=="Typhimurium var. O 5-(Copenhagen)"] <- "Ty
 isolates2$Serovar[isolates2$Serovar=="Typhimurium var. O:5-"] <- "Typhimurium (Copenhagen)"
 isolates2$Serovar[isolates2$Serovar=="Typhimurium* (Cerro)"] <- "Typhimurium (Cerro)"
 
-
-## Creating categories for host ##
+##################################
+## CREATING CATEGORIES FOR HOST ##
+##################################
 
 # Create host categories
 Human <- "Homo sapiens"
@@ -62,6 +63,7 @@ Mammal <- c("Alces alces","Alpaca","Bos taurus","bovine","Bovine","Canis sp.","C
             "Mus musculus","Neogale vison","opposum","Ovis aries","Pig","porcine","Rabbit","rodent","Sus scrofa",
             "Sus sp.","swine")
 
+# Assign categories to observations
 isolates2$Host.category <- vector(length = length(isolates2$Host))
 
 for (i in 1:length(isolates2$Host)) {
@@ -90,8 +92,6 @@ for (i in 1:length(isolates2$Host)) {
     isolates2$Host.category[i] <- NA
   }
 }
-
-
 
 
 ############################
