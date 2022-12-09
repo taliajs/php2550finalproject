@@ -7,13 +7,15 @@
   # processing year and month and time
   # seasons
   # genetic info
-  # isolate source categories/groups (TBD/in progress)
+  # isolate source categories/groups
 
 # Libraries
 library(tidyverse)
 library(dplyr)
 library(readr)
 library(stringr)
+library(lubridate)
+library(rpart.plot)
 
 # read in isolates dataset
 isolates <- read.csv("data/isolates.csv")
@@ -173,6 +175,15 @@ standardize_location <- function(df) {
       state_loc <- ifelse(loc %in% state.name, isolates2$state[i] <- state.abb[match(loc, state.name)], "no")
     }
     
+    # dealing with Washington state and New York state
+    else if (isolates2$location2[i] == "Washington state") {
+      isolates2$state[i] <- "WA"
+    }
+    
+    else if (isolates2$location2[i] == "New York state" | isolates2$location2[i] == "New York State") {
+      isolates2$state[i] <- "NY"
+    }
+    
     #BIFSCo regions, or other regions/areas (e.g. Midwest, Western Region) --> assign to "OTHER"
     else {
       isolates2$state[i] <- "Other"
@@ -217,65 +228,60 @@ regions <- function(df) {
   # creates regions for the states
   #'@param data frame with the states variable
   #'@return regions
-  
-  df <- df
+
   
   # make a new variable for region (and add it to dataframe with states)
-  df$region <- vector(length = length(df$state))
+  isolates2$region <- vector(length = length(isolates2$state))
   
-  for (i in 1:nrow(df)) {
-    if (df$state[i] %in% region1) {
-      df$region[i] <- 1
-    } else if (df$state[i] %in% region2) {
-      df$region[i] <- 2 
-    } else if (df$state[i] %in% region3) {
-      df$region[i] <- 3
-    } else if (df$state[i] %in% region4) {
-      df$region[i] <- 4 
-    } else if (df$state[i] %in% region5) {
-      df$region[i] <- 5
-    } else if (df$state[i] %in% region6) {
-      df$region[i] <- 6 
-    } else if (df$state[i] %in% region7) {
-      df$region[i] <- 7
-    } else if (df$state[i] %in% region8) {
-      df$region[i] <- 8
+  for (i in 1:nrow(isolates2)) {
+    if (isolates2$state[i] %in% region1) {
+      isolates2$region[i] <- 1
+    } else if (isolates2$state[i] %in% region2) {
+      isolates2$region[i] <- 2 
+    } else if (isolates2$state[i] %in% region3) {
+      isolates2$region[i] <- 3
+    } else if (isolates2$state[i] %in% region4) {
+      isolates2$region[i] <- 4 
+    } else if (isolates2$state[i] %in% region5) {
+      isolates2$region[i] <- 5
+    } else if (isolates2$state[i] %in% region6) {
+      isolates2$region[i] <- 6 
+    } else if (isolates2$state[i] %in% region7) {
+      isolates2$region[i] <- 7
+    } else if (isolates2$state[i] %in% region8) {
+      isolates2$region[i] <- 8
     } 
     
     # some location had the BIFsco Regions mentioned --> so get those!
-    else if (grepl(" ", df$location2[i])) {
-      split_bifsco <- sapply(strsplit(df$location2[i], " "), `[`, 3) 
-      #print(split_bifsco) 
-      df$region[i] <- split_bifsco
-      
-      # for the longer BIFsco Regions 
-      split_bifsco <- sapply(strsplit(df$location2[i], " "), `[`, 5) 
-      df$region[i] <- split_bifsco
-    }
     
+    else if (grepl("BIFSCo", isolates2$location2[i])) {
+      split_bifsco <- strsplit(isolates2$location2[i], " ")
+      split1 <- sapply(split_bifsco, `[`, 3)
+      ifelse(grepl("[0-9]", split1), isolates2$region[i] <- split1, isolates2$region[i] <- sapply(split_bifsco, `[`, 5))
+    }
+  
     # other regions 
-    else if (grepl("Western Region", df$location2[i])) {
+    else if (grepl("Western Region", isolates2$location2[i])) {
       # assume Western Region is region 2
-      df$region[i] <- 2
+      isolates2$region[i] <- 2
     }
     
-    else if (grepl("Midwest", df$location2[i])) {
+    else if (grepl("Midwest", isolates2$location2[i])) {
       # Midwest states (source 5)
       #region 5: 5/5
       #region 6: 3/3
       #region 8: 4/18
       # most of the Midwest states fall in between BIFSCo regions 5 and 6 (all 8 states listed in regions 5 and 6 are included as the "Midwest). So randomly choose either region 5 or 6
-      df$region[i] <- sample(5:6, 1)
+      isolates2$region[i] <- sample(5:6, 1)
     }
     
     # if state not specified --> NA 
     else {
-      df$region[i] <- NA
+      isolates2$region[i] <- NA
     }
   }
-  return(df)
+  return(isolates2)
 }
-#df <- isolates2 
 isolates2 <- regions(isolates2)
 
 
@@ -332,36 +338,14 @@ isolates2 <- isolates2 %>% filter(Year == 2017 | Year == 2018 | Year == 2019 |
 
 
 
-####################
-## GENETIC INFO ##
-####################
 
-# Creating outbreak variables
 
-# finding associations between Min.same and Min.diff on the provided Outbreak info
-outbreak_df <- isolates %>% filter(Outbreak!="") %>% 
-  select(c(Min.same,Min.diff,Outbreak))
-outbreak_df$Outbreak <- as.factor(outbreak_df$Outbreak)
-
-outbreak_logit <- glm(Outbreak ~sqrt(Min.diff), 
-                      data = outbreak_df, family = "binomial")
-
-exp_outbreak <- predict(outbreak_logit, newdata=isolates2, type="response")
-exp_outbreak[is.na(exp_outbreak)] <- 0
-
-# threshold of predicted outbreak 0.9813, representing 75% of data with Outbreak variable pressent
-# outbreak <- cbind(outbreak,pred)
-# summary(outbreak$pred)
-
-new_outbreak <- ifelse(exp_outbreak >= 0.9813, 1, 0)
-isolates2 <- cbind(isolates2,new_outbreak)
 
 ####################
 ## ISOLATE SOURCE ##
 ####################
 
 #isolates2 <- read.csv("isolates2.csv")
-
 
 # Creating groups 
 #main category (e.g meat, poultry)
@@ -431,81 +415,6 @@ for (i in 1:nrow(isolates2)) {
     isolates2$isolate_source_type[i] <- "feces"
   }
   
-  # # -- CLINICAL --
-  # else if (grepl("swab|Swab", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "clinical"
-  #   isolates2$isolate_source_type[i] <- "swab"
-  # } 
-  # # organs
-  # else if (grepl("Abdomen|aorta|Aorta|lung|Lung|colon|Colon|intestine|Intestine|intestinal|liver|Liver|lymph node|Lymph Node|brain|kidney|Kidney|jejunum|pericardium|Pericardium|brain|breast|heart|Heart|spleen|joints|trachea|Trachea|organ|small|Small", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "clinical"
-  #   isolates2$isolate_source_type[i] <- "organs"
-  # } 
-  # #anatomy
-  # else if (grepl("joint|Joint|hip|LEGS|Bone|foot|yok sac|Huck|yolks|Yolk sac|Rectal|nasal|tonsil|pluera|Groin|Hip|
-  #           SCROTUM|bone", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "clinical"
-  #   isolates2$isolate_source_type[i] <- "anatomical"
-  # } 
-  # # other clinical 
-  # else if (grepl("Vaginal|wound|Abscess|abscess|necropsy|carcass|lab|sputum|perionitis|aspirate|Cyst|CSF|autopsy|
-  #           auxotroph|ISOLATE", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "clinical"
-  #   isolates2$isolate_source_type[i] <- "other clinical"
-  # } 
-  # 
-  # -- BIOLOGICAL (biological fluids, tissues) -- 
-  # if (grepl("biological fluid|fluid|Fluid|tissue|TISSUE", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "biological"
-  #   isolates2$isolate_source_type[i] <- "biological"
-  # }
-  # 
-  # # -- BODILY FLUIDS -- 
-  # if (grepl("blood|Blood|body fluid|urine|Urine|URINE", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "bodily fluids"
-  #   isolates2$isolate_source_type[i] <- "bodily fluids"
-  # }
-  
-  # -- ENVIRONMENT -- 
-  # else if (grepl("environment|water|lagoon|lake|river|River|Water|sewage|soil|stream|Creek|Foam|Enteric pool", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "environmental"
-  #   isolates2$isolate_source_type[i] <- "environmental"
-  # }
-  
-  # -- FOOD --
-  # if (grepl("spinach", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "food"
-  #   isolates2$isolate_source_type[i] <- "leafy greens"
-  # } else if (grepl("Animal feed|Pet food|pet food|Cat food|treat|Kibble|kibble", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "food"
-  #   isolates2$isolate_source_type[i] <- "animal food"
-  # } else if (grepl("apple|cantaloupe|pudding|olive|Food|Hazelnut|hazelnut|Meal|Peanut butter|Pecans|pecans|almonds|Almonds|Tomato|tomato|salad|celery|wheat|meal|Celery|corn|Ready to eat|hamburger|peanut butter", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "food"
-  #   isolates2$isolate_source_type[i] <- "food"
-  # }
-  
-  # # -- ANIMAL --
-  # if (grepl("human|ratite|sea lion|Reptile|Siluriformes|feline|equine|Hock|hock|turtle||goose|dog|snake|peafowl|Wild|mammal|Deer|parrot|mouse|horse|caprine|opossum|Canis|rabbit", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "animal"
-  #   isolates2$isolate_source_type[i] <- "animal"
-  # }
-  # 
-  # if (grepl("bovine|Bos taurus|Veal", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "animal"
-  #   isolates2$isolate_source_type[i] <- "cattle"
-  # }
-  # 
-  # if (grepl("porcine", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "animal"
-  #   isolates2$isolate_source_type[i] <- "swine"
-  # }
-  # 
-  # if (grepl("Gallus|gallus|avian clocae|Columba", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "animal"
-  #   isolates2$isolate_source_type[i] <- "bird"
-  # }
-  # 
-  
   # -- NOT AVAILABLE -- 
   if (grepl("Not collected|not known|Unknown", isolates2$Isolation.source[i])) {
     isolates2$isolate_source[i] <- "unknown"
@@ -518,19 +427,6 @@ for (i in 1:nrow(isolates2)) {
     isolates2$isolate_source_type[i] <- "unknown"
   }
   
-  # -- OTHER
-  # else {
-  #   isolates2$isolate_source[i] <- "other"
-  #   isolates2$isolate_source_type[i] <- "other"
-  # }
-  # 
-  
-  #-- OTHER
-  # if (grepl("treat|soil|node|feed|lagoon|food", isolates2$Isolation.source[i])) {
-  #   isolates2$isolate_source[i] <- "other"
-  #   isolates2$isolate_source_type[i] <- "other"
-  # }
-  
   # -- OTHER -- 
   if (isolates2$isolate_source[i] == "FALSE") {
     isolates2$isolate_source[i] <- "other"
@@ -538,8 +434,36 @@ for (i in 1:nrow(isolates2)) {
   }
 }
 
+####################
+## GENETIC INFO ##
+####################
+
+# Creating new outbreak variables
+
+# subset the data of outbreak variable and information of Min.diff and Min.same
+outbreak_df <- isolates %>% filter(!is.na(Min.diff)&!is.na(Min.same)) %>% 
+  select(c(Min.same,Min.diff,Outbreak))
+
+# re-define the Outbreak value into numeric value of 0 (no existing outbreak) and 1 (present an Outbreak)
+outbreak_df$Outbreak <- ifelse(outbreak_df$Outbreak=="",0,1)
+
+# finding associations between Min.same and Min.diff on the provided Outbreak info
+positiveWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak==1)) / nrow(outbreak_df))
+negativeWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak== 0)) / nrow(outbreak_df))
+
+# prepare the weights based on the value of Outbreak variable
+modelWeights <- ifelse(outbreak_df$Outbreak== 0,negativeWeight, positiveWeight)
+
+# plot the decision tree to visualize the conditions on Min.diff and Min.same to the Outbreak prevalence
+tree_model <- rpart(Outbreak~., data=outbreak_df,weights = modelWeights,minbucket=3,minsplit=10,cp=0.01)
+rpart.plot(tree_model)
+
+# decide to choose 0.5 prevalence of having an Outbreak as expected (min.diff <13 & min.same >=1)
+isolates2$new_outbreak <- ifelse(isolates2$Min.diff<13&isolates2$Min.same>=1,1,0)
+isolates2$new_outbreak[is.na(isolates2$new_outbreak)] <- 0
+
 # export isolates2 csv
-write.csv(isolates2, file = "isolates2.csv")
+write.csv(isolates2, file = "data/isolates2.csv")
 
 
 
