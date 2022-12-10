@@ -56,8 +56,7 @@ Environment <- c("Dust","Environment","Environmental","soil","Soil")
 Bird <- c("Bird","chicken","Chicken","Columba livia","Eudocimus albus","Gallus gallus","Gallus gallus domesticus",
           "Meleagris gallopavo","Parrot","Pelecanus occidentalis","Poultry","Spinus pinus","turkey","Turkey")
 Reptile <- c("Lepidochyelys olivacea","Malaclemys terrapin","Pogona vitticeps","SNAKE","Terrepene carolina")
-Animal <- "animal"
-Food <- "Raw almond"
+Other <- c("animal","Raw almond")
 Mammal <- c("Alces alces","Alpaca","Bos taurus","bovine","Bovine","Canis sp.","Cat","cattle","cow","Deer","Dog",
             "Enhydra","Equine","Equus caballus","Equus ferus caballus","Horse","Lama glama","lamb","mouse",
             "Mus musculus","Neogale vison","opposum","Ovis aries","Pig","porcine","Rabbit","rodent","Sus scrofa",
@@ -79,11 +78,8 @@ for (i in 1:length(isolates2$Host)) {
   } else if (isolates2$Host[i]%in%Reptile) {
     isolates2$Host.category[i] <- "Reptile"
     
-  } else if (isolates2$Host[i]%in%Animal) {
-    isolates2$Host.category[i] <- "Animal"
-    
-  } else if (isolates2$Host[i]%in%Food) {
-    isolates2$Host.category[i] <- "Food"
+  } else if (isolates2$Host[i]%in%Other) {
+    isolates2$Host.category[i] <- "Other"
     
   } else if (isolates2$Host[i]%in%Mammal) {
     isolates2$Host.category[i] <- "Mammal"
@@ -306,39 +302,6 @@ isolates2$Week <- week(isolates2$Date)
 # Restrict data to 2017 to present
 isolates2 <- isolates2 %>% filter(Year == 2017 | Year == 2018 | Year == 2019 |
                                     Year == 2020 | Year == 2021 | Year == 2022)
-
-
-#############
-## SEASONS ##
-#############
-
-# grouping months into seasons 
-
-#for (i in 1:nrow(isolates2)){
-#  # if the month is Mar, Apr, May --> spring
-#  if (isolates2$Collection.month[i] %in% c(3,4,5)){
-#    # then new variable season has the value 1
-#    isolates2$season[i] <- 1
-#  }# if the month is Jun, Jul, Aug --> summer
-#  else if (isolates2$Collection.month[i] %in% c(6,7,8)){
-#    # then new variable season has the value 2
-#    isolates2$season[i] <- 2
-#  }# if the month is Sep,Oct,Nov --> fall
-#  else if(isolates2$Collection.month[i] %in% c(9,10,11)){
-#    # then new variable season has the value 3
-#    isolates2$season[i] <- 3
-#  }# if the month is Dec, Jan, Feb --> winter
-#  else if (isolates2$Collection.month[i] %in% c(12,1,2)){
-#    # then new variable season has the value 4
-#    isolates2$season[i] <- 4
-#  } else { #if month not specified, NA 
-#    isolates2$season[i] <- NA
-#  }
-#}
-
-
-
-
 
 
 ####################
