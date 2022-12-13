@@ -8,8 +8,9 @@ This repository contains the code associated with our final project, which is fo
 
 ## Files
 
--  `isolates.csv`: This is the original data (from the NCBI Isolates Browser) 
-- `isolates2.csv`: This is the data that was used for our analysis (the data after pre-processing). 
+- `data`: This folder contains the data used for this project:
+  - `isolates.csv`: This is the original data (from the NCBI Isolates Browser) 
+  - `isolates2.csv`: This is the data that was used for our analysis (the data after pre-processing). 
 
 - `code`: This folder contains the code from the project. 
   - `missingdata.R`: Missing data analysis. This file contains the code used for our initial exploratory analysis of missing data.
