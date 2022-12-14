@@ -472,6 +472,18 @@ SNP.cluster.rank <- SNP.cluster.rank %>% select(-c("count"))
 
 isolates2 <- merge(isolates2,SNP.cluster.rank,by="SNP.cluster")
 
+##################### NEW OUTBREAK ####################
+
+# missing value percentage of outbreak
+# sum(is.na(isolates2$Outbreak))/nrow(isolates2)
+
+# SNP distance within 5-7 considering as the same outbreak
+isolates2$new_outbreak <- ifelse(isolates2$Min.diff<=5 | isolates2$Min.same <=5,1,0)
+isolates2$new_outbreak[is.na(isolates2$new_outbreak)] <- 0
+
+# new outbreak prevalence in selected years
+sum(isolates2$new_outbreak==0)/nrow(isolates2)
+
 # export isolates2 csv
 write.csv(isolates2, file = "data/isolates2.csv")
 
