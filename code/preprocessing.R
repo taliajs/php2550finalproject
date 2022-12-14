@@ -401,29 +401,76 @@ for (i in 1:nrow(isolates2)) {
 ## GENETIC INFO ##
 ####################
 
-# Creating new outbreak variables
+##################### AMR Genotype####################
+AMR.gene <-c()
+for (i in 1:nrow(isolates2)){
+  genotype <- unlist(strsplit(isolates2$AMR.genotypes[i],","))
+  complete_genotype <- genotype[str_detect(genotype,"=COMPLETE")==TRUE]
+  isolates2$AMR.genotypes.count[i] <- length(complete_genotype)
+  AMR.gene  <- append(AMR.gene,complete_genotype)
+}
 
-# subset the data of outbreak variable and information of Min.diff and Min.same
-outbreak_df <- isolates %>% filter(!is.na(Min.diff)&!is.na(Min.same)) %>% 
-  select(c(Min.same,Min.diff,Outbreak))
+# extract name of AMR genotypes
+for (i in 1:length(AMR.gene)){
+  end_ind <- gregexpr("=",AMR.gene[i])[[1]][1]-1
+  AMR.gene[i] <- substr(AMR.gene[i],1,end_ind)
+}
 
-# re-define the Outbreak value into numeric value of 0 (no existing outbreak) and 1 (present an Outbreak)
-outbreak_df$Outbreak <- ifelse(outbreak_df$Outbreak=="",0,1)
+# number of complete AMR genotypes in a dataframe
+# length(unique(AMR.gene)) #140
 
-# finding associations between Min.same and Min.diff on the provided Outbreak info
-positiveWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak==1)) / nrow(outbreak_df))
-negativeWeight <- 1.0 / (nrow(subset(outbreak_df, Outbreak== 0)) / nrow(outbreak_df))
+##################### Stress Genotype ####################
+Stress.gene <- c()
+for (i in 1:nrow(isolates2)){
+  genotype <- unlist(strsplit(isolates2$Stress.genotypes[i],","))
+  complete_genotype <- genotype[str_detect(genotype,"=COMPLETE")==TRUE]
+  isolates2$Stress.genotypes.count[i] <- length(complete_genotype)
+  Stress.gene  <- append(Stress.gene,complete_genotype)
+}
 
-# prepare the weights based on the value of Outbreak variable
-modelWeights <- ifelse(outbreak_df$Outbreak== 0,negativeWeight, positiveWeight)
+# extract name of Stress genotypes
+for (i in 1:length(Stress.gene)){
+  end_ind <- gregexpr("=",Stress.gene[i])[[1]][1]-1
+  Stress.gene[i] <- substr(Stress.gene[i],1,end_ind)
+}
 
-# plot the decision tree to visualize the conditions on Min.diff and Min.same to the Outbreak prevalence
-tree_model <- rpart(Outbreak~., data=outbreak_df,weights = modelWeights,minbucket=3,minsplit=10,cp=0.01)
-rpart.plot(tree_model)
+# number of complete Stress genotypes in a dataframe
+# length(unique(Stress.gene)) #42
 
-# decide to choose 0.5 prevalence of having an Outbreak as expected (min.diff <13 & min.same >=1)
-isolates2$new_outbreak <- ifelse(isolates2$Min.diff<13&isolates2$Min.same>=1,1,0)
-isolates2$new_outbreak[is.na(isolates2$new_outbreak)] <- 0
+
+##################### VIRULENCE GENOTYPES ####################
+isolates2$Virulence.genotypes[is.na(isolates2$Virulence.genotypes)] <- "unknown"
+
+Virulence.gene <- c()
+for (i in 1:nrow(isolates2)){
+  genotype <- unlist(strsplit(isolates2$Virulence.genotypes[i],","))
+  complete_genotype <- genotype[str_detect(genotype,"=COMPLETE")==TRUE]
+  isolates2$Virulence.genotypes.count[i] <- length(complete_genotype)
+  Virulence.gene  <- append(Virulence.gene,complete_genotype)
+}
+
+# extract name of Virulence genotypes
+for (i in 1:length(Virulence.gene)){
+  end_ind <- gregexpr("=",Virulence.gene[i])[[1]][1]-1
+  Virulence.gene[i] <- substr(Virulence.gene[i],1,end_ind)
+}
+
+# number of complete Virulence genotypes in a dataframe
+# length(unique(Virulence.gene)) #22
+
+
+##################### SNP CLUSTERS ####################
+isolates2$SNP.cluster[is.na(isolates2$SNP.cluster)] <- "unknown"
+
+# number of SNP clusters in a dataframe
+# length(unique(isolates2$SNP.cluster)) #1006
+
+SNP.cluster.rank <- data.frame(SNP.cluster=isolates2$SNP.cluster) %>% group_by(SNP.cluster) %>%
+  summarize(count=n()) %>% arrange(desc(count))
+SNP.cluster.rank$SNP.cluster.rank <- seq(1,nrow(SNP.cluster.rank),1)
+SNP.cluster.rank <- SNP.cluster.rank %>% select(-c("count"))
+
+isolates2 <- merge(isolates2,SNP.cluster.rank,by="SNP.cluster")
 
 # export isolates2 csv
 write.csv(isolates2, file = "data/isolates2.csv")
