@@ -36,17 +36,12 @@ R packages required/needed:
 ## Files
 
 - `code`: This folder contains the code from the project. 
-  - **EDA** folder: This folder contains our exploratory data analysis
-    -  `EDA.Rmd`: This file contains the code for the exploratory analysis.
-    -  `geographic_methods.Rmd` and `geographic_methods.pdf`: Exploring methods for geographic visualizations.
-
-
- 
-  - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing
-  - `Linear_Model.R`: Linear model.
-  - `RF_Model.R`: Random forest model. 
-  -
+  -  `EDA.Rmd`: This file contains the code for the exploratory analysis.
+  -  `geographic_methods.Rmd` and `geographic_methods.pdf`: Exploring methods for geographic visualizations.
+  - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing.
   - `variable_eda.R`: Exploring variables in model (frequency tables). 
+  - `Linear_Model.R`: Linear model (code for creating and analyzing model)
+  - `RF_Model.R`: Random forest model (code for creating and analyzing model)
 
 - `data`: This folder contains the data used for this project:
   - `isolates.csv`: This is the original data (from the NCBI Isolates Browser) 
