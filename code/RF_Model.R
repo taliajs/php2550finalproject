@@ -116,3 +116,22 @@ rf_metrics_df[,-3] %>% kbl(caption = 'Comparison Table of 2 RF Models') %>%
   pack_rows(index = table(rf_metrics_df$Model)) %>%
   kable_classic(full_width = F, html_font = "Cambria")
 
+
+# example
+outbreak_df$predict_m<- predict(bag.outbreak_m,rf_model_df_m)
+outbreak_df$predict_w <- predict(bag.outbreak_w,rf_model_df_w)
+
+example_rf <- outbreak_df %>% filter(Serovar=="Typhimurium" & isolate_source_type %in% c("egg","chicken","turkey","poultry") & region==8) %>%
+  group_by(isolate_source_type,Year,region) %>%
+  summarize(obs_outbreak = sum(new_outbreak),pred_m_outbreak=abs(sum(predict_m)),pred_w_outbreak=abs(sum(predict_w)))
+
+ggplot(example_rf)+
+  geom_smooth(aes(Year,pred_m_outbreak,col=isolate_source_type),linetype=1)+ 
+  geom_smooth(aes(Year,pred_w_outbreak,col=isolate_source_type),linetype=2)+
+  labs(title = "RF:Predicted Number of Outbreak of Typhimurium",
+       x = "Year of observation",
+       y = "Number of Observed Outbreak") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),legend.position="top")
+
+
