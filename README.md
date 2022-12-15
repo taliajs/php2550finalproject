@@ -20,4 +20,4 @@ This repository contains the code associated with our final project, which is fo
   - `isolates.csv`: This is the original data (from the NCBI Isolates Browser) 
   - `isolates2.csv`: This is the data that was used for our analysis (the data after pre-processing). 
   
-- `lit-review`: This folder contains the literature reivew (more background information on salmonella poultry vaccines, and methods for identifying/predicting outbreaks). 
+- `lit-review`: This folder contains the literature review (more background information on salmonella poultry vaccines, and methods for identifying/predicting outbreaks). 
