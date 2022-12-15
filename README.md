@@ -12,13 +12,27 @@ Our goal for this project is to identify strains/regions/time of year, etc. that
 
 R was used for this project.
 
-Libraries used: 
+R packages required: 
+
+(Preprocessing and EDA)
 - tidyverse
-- lubridate (modeling)
-- mice (modeling)
-- dplyr (data pre-processing)
-- stringr (data pre-processing)
-- ggplot2 (visualization)
+- dplyr
+- readr
+- stringr 
+- lubridate
+- ggplot2
+- table1
+- kableExtra
+
+(Specific R packages related to model/analysis)
+- rpart.plot
+- caret
+- pROC
+- DescTools
+- randomForest
+- rsample
+- rfUtilities 
+
 
 ## Files
 
