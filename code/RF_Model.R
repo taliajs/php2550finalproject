@@ -7,7 +7,7 @@ library(rfUtilities)
 library(kableExtra)
 
 # load in dataset
-isolates <- read.csv("~/Downloads/php2550finalproject-main 3/data/isolates2.csv")
+isolates <- read.csv("data/isolates2.csv")
 
 
 # select interest independent variables for learning its association to the new outbreak variable
