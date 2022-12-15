@@ -9,10 +9,10 @@ This repository contains the code associated with our final project, which is fo
 ## Files
 
 - `code`: This folder contains the code from the project. 
-  - `missingdata.R`: Missing data analysis. This file contains the code used for our initial exploratory analysis of missing data.
   - `EDA.Rmd`: This file contains the code for the exploratory analysis.
   - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing
-  - `Model.R`: Model building, and the final prediction model that predicts the frequency of an outbreak from a specific isolate source for a certain region and time. 
+  - `Linear_Model.R`: Linear model.
+  - `RF_Model.R`: Random forest model. 
   - `geographic_methods.Rmd` and `geographic_methods.pdf`: Exploring methods for geographic visualizations.
   - `variable_eda.R`: Exploring variables in model (frequency tables). 
 
