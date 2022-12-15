@@ -6,6 +6,10 @@
 ## About 
 This repository contains the code associated with our final project, which is focused on identifying "targets" for Salmonella vaccines for poultry. Our goal for this project is to identify strains/regions/time of year, etc. that should be prioritized for vaccination campaigns. For instance, Are there certain/specific regions and time of year that should be focused on when thinking about vaccination? Are there certain strains of Salmonella that are more prevalant than others? We fit a prediction model to predict outbreaks of Salmonella enterica in the United States.
 
+## Setup 
+
+R was used for this project. 
+
 ## Files
 
 - `code`: This folder contains the code from the project. 
@@ -19,5 +23,5 @@ This repository contains the code associated with our final project, which is fo
 - `data`: This folder contains the data used for this project:
   - `isolates.csv`: This is the original data (from the NCBI Isolates Browser) 
   - `isolates2.csv`: This is the data that was used for our analysis (the data after pre-processing). 
-  
+
 - `lit-review`: This folder contains the literature review (more background information on salmonella poultry vaccines, and methods for identifying/predicting outbreaks). 
