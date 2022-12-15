@@ -35,3 +35,5 @@ Libraries used:
   - `isolates2.csv`: This is the data that was used for our analysis (the data after pre-processing). 
 
 - `lit-review`: This folder contains the literature review (more background information on salmonella poultry vaccines, and methods for identifying/predicting outbreaks). 
+
+- `supplementary-material`: This folder contains the supplementary material for project.
