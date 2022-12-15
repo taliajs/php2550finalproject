@@ -1,13 +1,59 @@
 ---
-title: "\\vspace{-2.5cm} Literature Review"
-subtitle: "Salmonella Vaccines for Poultry"
+title: " \\vspace{-2.5cm} Literature Review"
 output: pdf_document
-date: '2022-12-14'
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Poultry Vaccination for Salmonella 
+
+There are two different types of vaccines for Salmonella: live-attenuated vaccines, and inactivated vaccines. The advantages of live attenuated vaccines is these vaccines can be administered orally to birds of any age, and protective immunity is induced through activation of antibody and cell-mediated immune responses. Additionally, live attenuated vaccines can help immunize birds where individual vaccination may not be possible, making these vaccines/strains more desirable in those cases (Desin et al). However, there are some drawbacks to this class of vaccine. The first major drawback is that the live strain can persist for long periods of time in chickens as well as in their environment, posing a potential threat to humans. Another downside is the potential for “reversion to virulence” (Desin et al), and possibly interfering with testing for Salmonella (Desin et al). 
+
+When it comes to a vaccine for Salmonella, layer hens are a good species/animal to focus on, because of its ability to be persistently infected specifically with S. typhimirium, and because layer hens are able to intermittently shed the bacteria over the course of its lifetime (Jia et al). Some of the current methods for administering salmonella vaccines to poultry include: coarse spray (an automated method that delivers vaccine via small droplets that can attach to the mucosa of the eyes, nasal passages, and upper respiratory tract), gel-based sprays (larger droplets that adhere to feathers, enabling the vaccine to be ingested through grooming/preening, and then eventually delivered to the gastrointestinal tract), delivering vaccine orally through drinking water, and intramuscular injection. Coarse spray and drinking water are the most commonly recommended methods of administering the vaccines as they are economical and easy to implement. Intramuscular injections on the other hand, require substantially more labor, but the injections have been linked to a higher circulating antibody response (Jia et al 2020). One important thing to note is that there is variability in the efficacy of the vaccine which could be due to the “immunological resistance” of Salmonella in poultry birds, or by how the vaccine strains were developed/prepared (this one of the main reasons for low efficacy) (Jia et al 2020). 
+
+## S. typhimurium
+
+S. typhimurium is one of the most common causes of bacterial foodborne gastrointestinal disease in humans, and most frequently comes from food items containing raw or undercooked eggs. Mitigating S. typhimurium on farms can help reduce bacteria in the food supply chain (Jia et al 2020). There present some challenges in vaccinating layer hens against S. typhimurium. First, the complex environment (due to residual dust and dirt of farms), along with the extended lifespan of a layer hens leads to unique challenges in achieving effective protection against S. typhimurium infection, and can lead to variability in the efficacy of vaccines. One significant challenge in effectively vaccinating layer hens is the variability in the bacterial load that the birds could be exposed to on the farms. This means that when determining the efficacy of vaccination, it’s important to test the efficacy against a range of increasing doses of wild type S. typhimurium. Another challenge is that it’s not well established if the current ways of administering the vaccine are sufficient enough to elicit a protective immunity response to continually control Salmonella (Jia et al). 
+
+Currently, there are several available inactivated and live attenuated S. typhimurium vaccines. Live attenuated vaccines are favored over inactivated vaccines because live attenuated vaccines elicit cell and immune responses. The most common mutations for making live attenuated vaccines are the *aroA* and *cya/crp* mutations (Jia et al 2020). After vaccinating chickens orally with the S. typhimurium cya/crp double mutant, levels of challenge strain in the ceca was significantly reduced (Desin et al 2013). The *aroA* mutant of S. typhimurium strain F98 when attenuated for chickens, gave protection to 4 day old chicks against challenge of 108 cfu (colony forming unit) of parent strain, when vaccinated by intramuscular or oral routes (Zhang-Barber et al). It was found that the degree of protection “greatly improved when the challenge was made by contact infection soon after oral vaccination of the newly hatched chicks” (Zhang-Barber et al). (cfu is a unit of measurement used to determine the number of bacterial cells in a sample; Kleinfeld).
+
+
+## S. enteriditis
+
+S. enteritidis is the serotype primarily associated with laying hens and the mechanisms that ensure its successful colonization, infection and subsequent contamination of table egg (Ricke). It is also the serotype that is primarily associated with salmonellosis originating from the egg (egg-related salmonellosis). This serotype has unique characteristics that allows it to successfully infect laying hens (Ricke). Research efforts over the years have been focused on identifying the potentially unique phenotype and genotypic traits that are affiliated with S. enteritidis (Ricke). S. enteritidis has been found to be much more capable of surviving in egg whites, which could make eliminating this bacteria more difficult (Ricke). 
+
+Ricke et al discusses variability in virulence and survival characteristics among S. enteritidis strains, including studies on detailed characterization at the molecular level. Identifying universal portions of the S. enteritidis genome could offer potential vaccine genetic targets that would elicit broad-spectrum based protection against all S. enteritidis strains (as well as non S. enteritidis serotypes depending on the antigen selection).
+
+A few different strains have been mentioned throughout the literature in regards to vaccines for S. enteritidis. Oral immunization of a S. enteritidis *aroA* mutant strain to day old chicks was found to have lower levels of the challenge strain in internal organs and the ceca (Desin et al). This *aroA* strain was also found to have protected layer hens against a challenge with the wild type strain (Zhang-Barber et al). Another strain, however, was found to offer better protection against S. enteritidis - S. gallinarum 9R vaccine strain (Zhang-Barber et al). Another strain is a *purE* mutant strain, and this strain is currently being used as a chicken vaccine in Europe (Zhang-Barber et al). 
+
+
+# Identifying/Predicting Outbreaks
+
+There are a variety of methods that can be used for predicting outbreaks/prevalence. Some common methods for predicting foodborne disease outbreaks include: regression, clustering, hidden Markov models, DBScan (density-based spatial clustering of applications with noise) models, and time-series prediction methods (Wang et al).
+
+Wang et al analyzed the relationship between location, time and foodborne disease pathogens, and wanted to obtain a pathogen prediction model with the highest accuracy. They used various machine learning methods to classify the foodborne disease pathogens, such as decision trees, random forest, gradient boosting decision tree (GBDT), and adaptive boosting. The authors found that the GBDT model had the highest accuracy (69% accuracy in identifying 4 pathogens - Salmonella, Norovirus, E. coli and Vibrio parahaemolyticus). They also determined that geographic location, and time of illness play an important role in classifying foodborne disease pathogens.  
+
+White et al demonstrated the use of regression for predicting outbreaks. The authors used a multinomial logistic regression model with a split-sample approach (70% derivation set, 30% validation set) to predict the probability of a food source leading to/causing an outbreak. Their model was developed using a random subset of outbreaks, and validated on the remaining outbreaks. 
+
+Another type of model that is used for preventing foodborne outbreaks is a forecast model. A forecast model is helpful when it comes to thinking about future disease outbreaks, as this model can “detect future changes in the process occuring at an unknown time” (Rojas). A forecast model uses fitted values from a multivariate time series model, and estimates different parameters using via GSARIMA (generalized auto-regressive and moving average models).
+
+\newpage
 
 
 # Bibliography/References
+
+Desin T. S., Köster, W., & Potter, A. A. (2013). *Salmonella* vaccines in poultry: past, present and
+future. *Expert Review of Vaccines*, 12(1), 87-96. DOI: 10.1586/erv.12.138
+
+Jia, S., McWhorter, A. R., Andrews, D. M., Underwood, G. J., & Chousalkar, K. K. (2020).
+Challenges in Vaccinating Layer Hens against *Salmonella* Typhimurium. *Vaccines, 8*(4), 696. https://doi.org/10.3390/vaccines8040696
+
+Kleinfeld, H. *Colony forming units: What are CFUS and how many do you need?* OMNiBiOTiC. (2021, August 31). Retrieved October 23, 2022, from  https://www.omnibioticlife.com/what-are-colony-forming-units/ 
+
+Ricke, S. C. (2017). Insights and challenges of *Salmonella* infection of laying hens. *Current Opinion in Food Science*, 18, 43-49. https://doi.org/10.1016/j.cofs.2017.10.012 
+
+Rojas, F., & Ibacache-Quiroga, C. (2020). A forecast model for prevention of foodborne outbreaks of non-typhoidal salmonellosis. *PeerJ, 8*, e10009. https://doi.org/10.7717/peerj.10009
+
+Wang, H., Cui, W., Guo, Y., Du, Y., & Zhou, Y. (2021). Machine Learning Prediction of Foodborne Disease Pathogens: Algorithm Development and Validation Study. *JMIR medical informatics, 9*(1), e24924. https://doi.org/10.2196/24924
+
+White, A., Cronquist, A., Bedrick, E. J., & Scallan, E. (2016). Food Source Prediction of Shiga Toxin-Producing Escherichia coli Outbreaks Using Demographic and Outbreak Characteristics, United States, 1998-2014. *Foodborne pathogens and disease, 13*(10), 527–534. https://doi.org/10.1089/fpd.2016.2140
+
+Zhang-Barber, L., Turner A. K., & Barrow P. A (1999). Vaccination for control of Salmonella in poultry. *Vaccine*, 17(20-21), 2538-2545. https://doi.org/10.1016/S0264-410X(99)00060-2.
