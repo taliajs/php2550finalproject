@@ -12,7 +12,6 @@ R was used for this project.
 
 ## Files
 
-**code** folder
 - `code`: This folder contains the code from the project. 
   - `EDA.Rmd`: This file contains the code for the exploratory analysis.
   - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing
