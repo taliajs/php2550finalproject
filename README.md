@@ -34,6 +34,12 @@ R packages required:
 - rfUtilities 
 
 
+| R package | Use |
+| ------------- | ------------- |
+| tidyverse  | data pre-processing, |
+| dpylr |  data pre-processing |
+
+
 ## Files
 
 - `code`: This folder contains the code from the project. 
