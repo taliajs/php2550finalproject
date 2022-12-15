@@ -266,7 +266,7 @@ ggplot(example,aes(Year,obs_outbreak))+
 ggplot(example)+
   geom_smooth(aes(Year,pred_m_outbreak,col=isolate_source_type))+ 
   geom_smooth(aes(Year,pred_w_outbreak,col=isolate_source_type),linetype="dashed")+
-  labs(title = "Predicted Number of Outbreak of Typhimurium",
+  labs(title = "GLM: Predicted Number of Outbreak of Typhimurium",
        x = "Year of observation",
        y = "Number of Observed Outbreak") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
