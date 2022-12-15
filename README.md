@@ -4,9 +4,7 @@
 
 
 ## About 
-This repository contains the code associated with our final project, 
-
-which is focused on identifying "targets" for Salmonella vaccines for poultry. Our goal for this project is to identify strains/regions/time of year, etc. that should be prioritized for vaccination campaigns. For instance, Are there certain/specific regions and time of year that should be focused on when thinking about vaccination? Are there certain strains of Salmonella that are more prevalant than others? We fit a prediction model to predict outbreaks of Salmonella enterica in the United States.
+This project was done as part of the final project for PHP 2550: Practical Data Analysis class. Our project is focused on identifying targets for Salmonella vaccines for poultry. Our goal for this project is to identify strains/regions/time of year, etc. that should be prioritized for vaccination campaigns. For instance, Are there certain/specific regions and time of year that should be focused on when thinking about vaccination? Are there certain strains of Salmonella that are more prevalant than others? We fit a prediction model to predict outbreaks of Salmonella enterica in the United States.
 
 ## Setup 
 
@@ -14,7 +12,7 @@ R was used for this project.
 
 ## Files
 
-
+**code** folder
 - `code`: This folder contains the code from the project. 
   - `EDA.Rmd`: This file contains the code for the exploratory analysis.
   - `preprocessing.R`: Contains the code used in our data cleaning/preprocessing
