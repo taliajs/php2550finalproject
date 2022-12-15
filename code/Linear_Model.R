@@ -1,7 +1,6 @@
 # libraries
 library(tidyverse)
 library(ggplot2)
-library(lmtest)
 library(rpart.plot)
 library(kableExtra)
 library(caret)
@@ -41,26 +40,28 @@ outbreak_df$Stress.genotypes.count <- ifelse(outbreak_df$Stress.genotypes.count>
 outbreak_df$AMR.genotypes.count <- ifelse(outbreak_df$AMR.genotypes.count>=6,1,0)
 outbreak_df$SNP.cluster.rank <- ifelse(outbreak_df$SNP.cluster.rank<=21,1,2)
 
+
+
 # use those key parameters for further building predictive model on isolates numbers over time
 model_df_m <- outbreak_df %>% select(c("AMR.genotypes.count","Stress.genotypes.count",
                                       "isolate_source_type","Host.category","SNP.cluster.rank",
                                       "region","Year","Month","Serovar","new_outbreak")) %>%
-  group_by(Serovar,Year,Month,region) %>%
+  group_by(Serovar,Year,Month,region,isolate_source_type) %>%
   # count number of isolate by groups, modify year variables starting 2017
   mutate(Outbreak_num=sum(new_outbreak),Year=Year-2016) %>%
   select(-c("new_outbreak"))
 
-model_df_m$isolate_source_type <- levels(model_df$isolate_source_type)[model_df$isolate_source_type]
+model_df_m$isolate_source_type <- levels(model_df_m$isolate_source_type)[model_df_m$isolate_source_type]
 
 model_df_w <- outbreak_df %>% select(c("AMR.genotypes.count","Stress.genotypes.count",
                                        "isolate_source_type","Host.category","SNP.cluster.rank",
                                        "region","Year","Week","Serovar","new_outbreak")) %>%
-  group_by(Serovar,Year,Week,region) %>%
+  group_by(Serovar,Year,Week,region,isolate_source_type) %>%
   # count number of isolate by groups, modify year variables starting 2017
   mutate(Outbreak_num=sum(new_outbreak),Year=Year-2016) %>%
   select(-c("new_outbreak"))
 
-model_df_w$isolate_source_type <- levels(model_df$isolate_source_type)[model_df$isolate_source_type]
+model_df_w$isolate_source_type <- levels(model_df_w$isolate_source_type)[model_df_w$isolate_source_type]
 
 
 ########################### Gaussian Linear Regression Model ###########################
@@ -73,17 +74,16 @@ modelm_1 <-glm(Outbreak_num~.,model_df_m,family="gaussian")
 
 # modify isolate source type of pork, beef into the category of other meat
 model_df_m$isolate_source_type <- factor(model_df_m$isolate_source_type)
-
-model_df_m$isolate_source_type <- relevel(model_df_m$isolate_source_type,ref="turkey")
+model_df_m$isolate_source_type <- relevel(model_df_m$isolate_source_type,ref="eggs")
 
 modelm_2 <- glm(Outbreak_num~.,model_df_m,family="gaussian")
-# summary(modelm_2)
+#summary(modelm_2)
 
 # modify host category of Human into mammal and reptile into other
 model_df_m$Host.category[model_df_m$Host.category=="Human"] <- "Mammal"
 model_df_m$Host.category[model_df_m$Host.category=="Reptile"] <- "Other"
 model_df_m$Host.category <- factor(model_df_m$Host.category)
-model_df_m$Host.category <- relevel(model_df_m$Host.category,ref="Other")
+model_df_m$Host.category <- relevel(model_df_m$Host.category,ref="Mammal")
 
 modelm_3 <- glm(Outbreak_num~.,model_df_m,family="gaussian")
 # summary(modelm_3) #final predictive model in month
@@ -95,36 +95,31 @@ modelm_3 <- glm(Outbreak_num~.,model_df_m,family="gaussian")
 modelw_1 <-glm(Outbreak_num~.,model_df_w,family="gaussian")
 #summary(modelw_1) 
 
-# transform week variable
-model_df_w <- model_df_w %>% mutate(Week=log(Week))
-
-modelw_2 <-glm(Outbreak_num~.,model_df_w,family="gaussian")
-#summary(modelw_2) 
-
 # relevel variables for model improving
-model_df_w$region <- relevel(model_df_w$region, ref = "unknown")
-modelw_3 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
-# summary(modelw_3)
+model_df_w$region <- relevel(model_df_w$region, ref ="4")
+modelw_2 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
+#summary(modelw_2)
 
 # modify isolate source type of pork, beef into the category of other meat
 model_df_w$isolate_source_type <- factor(model_df_w$isolate_source_type)
-model_df_w$isolate_source_type <- relevel(model_df_w$isolate_source_type,ref="unknown")
-modelw_4 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
-# summary(modelw_4)
+model_df_w$isolate_source_type <- relevel(model_df_w$isolate_source_type,ref="feces")
+modelw_3 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
+#summary(modelw_3)
 
 # modify host category of Human into mammal and reptile into other
-model_df_w$Host.category[model_df$Host.category=="Human"] <- "Mammal"
-model_df_w$Host.category[model_df$Host.category=="Reptile"] <- "Other"
-model_df_w$Host.category <- factor(model_df$Host.category)
-model_df_w$Host.category <- relevel(model_df$Host.category,ref="unknown")
+model_df_w$Host.category[model_df_w$Host.category=="Human"] <- "Mammal"
+model_df_w$Host.category[model_df_w$Host.category=="Reptile"] <- "Other"
+model_df_w$Host.category <- factor(model_df_w$Host.category)
+model_df_w$Host.category <- relevel(model_df_w$Host.category,ref="Other")
 
-modelw_5 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
-# summary(modelw_5)
+modelw_4 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
+#summary(modelw_4)
 
-# transform the year variable
-model_df_w <- model_df_w%>% mutate(Year=exp(Year))
-modelw_6 <- glm(Outbreak_num~.,model_df_w,family="gaussian")
-# summary(modelw_6) #final predictive model in weeks
+# remove Stress.genotype.count for its insignificance
+model_df_w <- model_df_w %>% select(-c("Stress.genotypes.count"))
+
+modelw_5 <-glm(Outbreak_num~.,model_df_w,family="gaussian")
+#summary(modelw_5) #final predictive model in weeks
 
 
 ########################### data validation ###########################
@@ -178,29 +173,29 @@ avg_model2_coef <- apply(model2_coef,1,mean)
 
 ########################### Evaluation ###########################
 
-test_df1$predict <- predict(glm(Outbreak_num~.,train_df1_m,family="gaussian"),test_df1,type="response")
-test_df2$predict <- predict(glm(Outbreak_num~.,train_df2_m,family="gaussian"),test_df2,type="response")
-test_df3$predict <- predict(glm(Outbreak_num~.,train_df3_m,family="gaussian"),test_df3,type="response")
-test_df4$predict <- predict(glm(Outbreak_num~.,train_df4_m,family="gaussian"),test_df4,type="response")
-test_df5$predict <- predict(glm(Outbreak_num~.,train_df5_m,family="gaussian"),test_df5,type="response")
+test_df1_m$predict <- predict(glm(Outbreak_num~.,train_df1_m,family="gaussian"),test_df1_m,type="response")
+test_df2_m$predict <- predict(glm(Outbreak_num~.,train_df2_m,family="gaussian"),test_df2_m,type="response")
+test_df3_m$predict <- predict(glm(Outbreak_num~.,train_df3_m,family="gaussian"),test_df3_m,type="response")
+test_df4_m$predict <- predict(glm(Outbreak_num~.,train_df4_m,family="gaussian"),test_df4_m,type="response")
+test_df5_m$predict <- predict(glm(Outbreak_num~.,train_df5_m,family="gaussian"),test_df5_m,type="response")
 
-test_df1$predict2 <- predict(glm(Outbreak_num~.,train_df1_w,family="gaussian"),test_df1,type="response")
-test_df2$predict2 <- predict(glm(Outbreak_num~.,train_df2_w,family="gaussian"),test_df2,type="response")
-test_df3$predict2 <- predict(glm(Outbreak_num~.,train_df3_w,family="gaussian"),test_df3,type="response")
-test_df4$predict2 <- predict(glm(Outbreak_num~.,train_df4_w,family="gaussian"),test_df4,type="response")
-test_df5$predict2 <- predict(glm(Outbreak_num~.,train_df5_w,family="gaussian"),test_df5,type="response")
+test_df1_w$predict2 <- predict(glm(Outbreak_num~.,train_df1_w,family="gaussian"),test_df1_w,type="response")
+test_df2_w$predict2 <- predict(glm(Outbreak_num~.,train_df2_w,family="gaussian"),test_df2_w,type="response")
+test_df3_w$predict2 <- predict(glm(Outbreak_num~.,train_df3_w,family="gaussian"),test_df3_w,type="response")
+test_df4_w$predict2 <- predict(glm(Outbreak_num~.,train_df4_w,family="gaussian"),test_df4_w,type="response")
+test_df5_w$predict2 <- predict(glm(Outbreak_num~.,train_df5_w,family="gaussian"),test_df5_w,type="response")
 
-roc.model1_test1 <- roc(test_df1$Outbreak_num,test_df1$predict)
-roc.model1_test2 <- roc(test_df2$Outbreak_num,test_df2$predict)
-roc.model1_test3 <- roc(test_df3$Outbreak_num,test_df3$predict)
-roc.model1_test4 <- roc(test_df4$Outbreak_num,test_df4$predict)
-roc.model1_test5 <- roc(test_df5$Outbreak_num,test_df5$predict)
+roc.model1_test1 <- roc(test_df1_m$Outbreak_num,test_df1_m$predict)
+roc.model1_test2 <- roc(test_df2_m$Outbreak_num,test_df2_m$predict)
+roc.model1_test3 <- roc(test_df3_m$Outbreak_num,test_df3_m$predict)
+roc.model1_test4 <- roc(test_df4_m$Outbreak_num,test_df4_m$predict)
+roc.model1_test5 <- roc(test_df5_m$Outbreak_num,test_df5_m$predict)
 
-roc.model2_test1 <- roc(test_df1$Outbreak_num,test_df1$predict2)
-roc.model2_test2 <- roc(test_df2$Outbreak_num,test_df2$predict2)
-roc.model2_test3 <- roc(test_df3$Outbreak_num,test_df3$predict2)
-roc.model2_test4 <- roc(test_df4$Outbreak_num,test_df4$predict2)
-roc.model2_test5 <- roc(test_df5$Outbreak_num,test_df5$predict2)
+roc.model2_test1 <- roc(test_df1_w$Outbreak_num,test_df1_w$predict2)
+roc.model2_test2 <- roc(test_df2_w$Outbreak_num,test_df2_w$predict2)
+roc.model2_test3 <- roc(test_df3_w$Outbreak_num,test_df3_w$predict2)
+roc.model2_test4 <- roc(test_df4_w$Outbreak_num,test_df4_w$predict2)
+roc.model2_test5 <- roc(test_df5_w$Outbreak_num,test_df5_w$predict2)
 
 plot(roc.model1_test1,main="ROC of 2 Models on One Training \nDataset",col="red")
 lines(roc.model2_test1,col="blue")
@@ -253,13 +248,13 @@ x_vars_month <- model.matrix(Outbreak_num~.,model_df_m)
 predict_month <- x_vars_month %*% avg_model1_coef
 x_vars_week <- model.matrix(Outbreak_num~.,model_df_w)
 predict_week <- x_vars_week %*% avg_model2_coef
-example <- cbind(model_df,predict_month=predict_month,predict_week=predict_week) %>% 
-  filter(Serovar=="Typhimurium",isolate_source_type %in% c("egg","chicken","turkey","poultry")) %>%
-  mutate(Year=log(Year),Month=exp(Month),Week=exp(Week)) %>%
+outbreak_df$isolate_source_type <- levels(outbreak_df$isolate_source_type)[outbreak_df$isolate_source_type]
+example <- cbind(outbreak_df,predict_month=predict_month,predict_week=predict_week) %>% 
+  filter(Serovar=="Typhimurium" & isolate_source_type %in% c("egg","chicken","turkey","poultry")) %>%
   group_by(isolate_source_type,Year,region) %>%
-  summarize(obs_outbreak = sum(Outbreak_num),pred_m_outbreak=abs(sum(predict_month)),pred_w_outbreak=abs(sum(predict_week)))
+  summarize(obs_outbreak = sum(new_outbreak),pred_m_outbreak=abs(sum(predict_month)),pred_w_outbreak=abs(sum(predict_week)))
 
-ggplot(example,aes(Year+2016,obs_outbreak))+
+ggplot(example,aes(Year,obs_outbreak))+
   geom_smooth(aes(col=isolate_source_type))+ 
   labs(title = "Observed the Number of Outbreak of Typhimurium",
        x = "Year of observation",
@@ -269,8 +264,8 @@ ggplot(example,aes(Year+2016,obs_outbreak))+
   facet_wrap(~region)
 
 ggplot(example)+
-  geom_smooth(aes(Year+2016,pred_m_outbreak,col=isolate_source_type))+ 
-  geom_smooth(aes(Year+2016,pred_w_outbreak,col=isolate_source_type),linetype="dashed")+
+  geom_smooth(aes(Year,pred_m_outbreak,col=isolate_source_type))+ 
+  geom_smooth(aes(Year,pred_w_outbreak,col=isolate_source_type),linetype="dashed")+
   labs(title = "Predicted Number of Outbreak of Typhimurium",
        x = "Year of observation",
        y = "Number of Observed Outbreak") +
