@@ -4,10 +4,12 @@
   # creating host categories
   # standardizing location
   # creating regions
-  # processing year and month and time
-  # seasons
-  # genetic info
+  # processing date, year, month and time
   # isolate source categories/groups
+  # genetic info
+    # AMR Genotype, Stress Genotype, Virulence genotypes, SNP clusters
+    # outbreak variable
+
 
 # Libraries
 library(tidyverse)
