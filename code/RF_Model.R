@@ -4,6 +4,7 @@ library(rsample)
 library(tidyverse)
 library(pROC)
 library(rfUtilities)
+library(kableExtra)
 
 # load in dataset
 isolates <- read.csv("~/Downloads/php2550finalproject-main 3/data/isolates2.csv")
