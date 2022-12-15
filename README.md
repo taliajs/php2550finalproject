@@ -12,32 +12,25 @@ Our goal for this project is to identify strains/regions/time of year, etc. that
 
 R was used for this project.
 
-R packages required: 
-
-(Preprocessing and EDA)
-- tidyverse
-- dplyr
-- readr
-- stringr 
-- lubridate
-- ggplot2
-- table1
-- kableExtra
-
-(Specific R packages related to model/analysis)
-- rpart.plot
-- caret
-- pROC
-- DescTools
-- randomForest
-- rsample
-- rfUtilities 
-
+R packages required/needed:
 
 | R package | Use |
 | ------------- | ------------- |
-| tidyverse  | data pre-processing, |
-| dpylr |  data pre-processing |
+| tidyverse  | Overall  |
+| table1 | Overall (displaying tables) |
+| kableExtra | Overall (displaying tables) | 
+| dpylr | Data pre-processing, and EDA |
+| readr | Data pre-processing |
+| stringr | Data pre-processing |
+| lubridate | Data pre-processing, and EDA | 
+| ggplot2 | Visualizations |
+| rpart.plot | Linear Model |
+| caret | Linear Model |
+| randomForest | Random Forest Model |
+| rsample | Random Forest Model |
+| rfUtilities | Random Forest Model |
+| pROC | Analyzing models |
+| DescTools | Analyzing models |
 
 
 ## Files
