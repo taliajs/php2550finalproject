@@ -18,7 +18,7 @@ library(lubridate)
 ```
 
 ```{r load data}
-isolates <- read.csv("isolates.csv")
+isolates <- read.csv("data/isolates.csv")
 
 ```
 
@@ -208,8 +208,7 @@ str_split(isolates$Location, ":")
 ```
 
 ### Further Analysis and Processing
-As we move further along in the project, we may choose to focus on a subset of the isolates based on their isolation source. Although this information is accessible, the variable contains 821 unique categories, so analysis of source type will require grouping these categories.
-
+The above exploratory analysis details an initial exploration of the data. Specific analyses that are run for inclusion in the paper and to provide context for decisions made during the model building process are in `variable_eda.R`.
 
 \newpage
 # References

@@ -33,7 +33,6 @@ isolate_states <- isolates %>%
 
 isolate_states$region <- tolower(state.name[match(isolate_states$region,state.abb)])
 
-/Users/tovaibbotson/Documents/GitHub/php2550finalproject/data
 
 ```
 
