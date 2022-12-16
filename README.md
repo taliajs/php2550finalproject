@@ -6,7 +6,7 @@
 ## About 
 This project was done as part of the final project for PHP 2550: Practical Data Analysis class. Our project is focused on identifying targets for Salmonella vaccines for poultry.
 
-Our goal for this project is to identify strains/regions/time of year, etc. that should be prioritized for vaccination campaigns. For instance, Are there certain/specific regions and time of year that should be focused on when thinking about vaccination? Are there certain strains of Salmonella that are more prevalant than others? We fit a prediction model to predict outbreaks of Salmonella enterica in the United States.
+Our goal for this project is to predict outbreaks of Salmonella enterica in the United States, and recommend when and where poultry vaccination campaigns should be introduced to reduce outbreaks. 
 
 ## Setup 
 
