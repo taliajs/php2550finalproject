@@ -39,6 +39,20 @@ regions <- isolates2 %>% select(X, state, location2, region) %>%
 ######################
 ### Create Table 1 ###
 ######################
+
+
+
+
 table1(~ Serovar + Host.category + isolate_source + isolate_source_type + region + 
          Year + Month + Week + Min.same + Min.diff + AMR.genotypes.count +
          SNP.cluster.rank + Stress.genotypes.count, data = isolates2)
+
+
+
+
+
+
+
+
+
+
